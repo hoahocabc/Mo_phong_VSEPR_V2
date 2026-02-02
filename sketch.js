@@ -22,6 +22,7 @@ let renderScaleMultiplier = 1;
 let isMobile = false; // Biến kiểm tra mobile
 let prefersReducedMotion = false;
 let resizeTimer = null;
+let viewportResizeTimer = null;
 
 let isModalOpen = false;
 
@@ -97,7 +98,7 @@ const LANG = {
     helpDiffDesc: "Có sự khác biệt giữa <strong>\"Phân tử thật\"</strong> (dữ liệu thực nghiệm) và <strong>\"Mô phỏng VSEPR\"</strong> (khi bạn tự thêm đối tượng):",
     helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
     helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
-    helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
+    helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" ��ể tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
     helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
   },
   en: {
@@ -246,21 +247,30 @@ function preload() {
 function renderObjectList() { return; }
 
 function detectMobile() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || windowWidth < 850;
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.matchMedia("(pointer: coarse)").matches ||
+    window.innerWidth < 850
+  );
+}
+
+function getViewportSize() {
+  const vp = window.visualViewport;
+  if (vp && isMobile) {
+    return { w: Math.round(vp.width), h: Math.round(vp.height) };
+  }
+  return { w: window.innerWidth, h: window.innerHeight };
 }
 
 function getCanvasSize() {
-  let cW, cH;
+  const vp = getViewportSize();
   const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
   const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
 
-  if (windowWidth <= 850) { 
-    cW = windowWidth; cH = windowHeight; 
-  } else { 
-    cW = windowWidth - sidebarW - sidebarRightW; 
-    cH = windowHeight; 
+  if (vp.w <= 850) { 
+    return { w: vp.w, h: vp.h };
   }
-  return { w: cW, h: cH };
+  return { w: vp.w - sidebarW - sidebarRightW, h: vp.h };
 }
 
 function applyRenderSettings() {
@@ -281,12 +291,18 @@ function applyRenderSettings() {
 }
 
 function setup() {
-  // Check if Mobile
   isMobile = detectMobile();
 
   let size = getCanvasSize();
   cnv = createCanvas(size.w, size.h, WEBGL);
   cnv.parent('canvas-container');
+  cnv.elt.style.position = 'absolute';
+  cnv.elt.style.top = '0';
+  cnv.elt.style.left = '0';
+  cnv.elt.style.width = '100%';
+  cnv.elt.style.height = '100%';
+  cnv.elt.style.display = 'block';
+  cnv.elt.style.touchAction = 'none';
 
   // Touch handling để tránh scroll giật trên mobile
   cnv.elt.addEventListener('touchstart', (e) => {
@@ -409,6 +425,13 @@ function setup() {
     else loop();
   });
 
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (viewportResizeTimer) clearTimeout(viewportResizeTimer);
+      viewportResizeTimer = setTimeout(() => windowResized(), 80);
+    });
+  }
+
   renderObjectList();
   updateRightSidebar();
   
@@ -429,7 +452,6 @@ function windowResized() {
 
 function touchMoved() {
   if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
-  // Trả về false để prevent default scroll của browser khi đang thao tác trên canvas
   return false; 
 }
 
@@ -480,7 +502,7 @@ function resetSystem() {
   lastMoleculeSelect = "";
   updateAddButtonsLock();
   updateButtonLabels();
-  if (windowWidth <= 850) {
+  if (window.innerWidth <= 850) {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-right').classList.remove('open');
     document.getElementById('mobile-overlay').classList.remove('active');
