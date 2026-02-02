@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Tối ưu hóa Viewport cho Mobile: Chặn zoom, hỗ trợ vùng an toàn (tai thỏ) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Mô phỏng 3D VSEPR</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.dom.min.js"></script>
+</head>
+<body>
+  <!-- Lớp phủ mờ khi mở menu trên mobile -->
+  <div id="mobile-overlay"></div>
+
+  <!-- Nút mở Menu Trái (Cài đặt) trên mobile -->
+  <button id="mobile-menu-btn" class="mobile-btn icon-btn" aria-label="Menu">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Nút mở Menu Phải (Danh sách) trên mobile -->
+  <button id="mobile-list-btn" class="mobile-btn icon-btn" aria-label="List">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- Khu vực vẽ 3D -->
+  <div id="canvas-container"></div>
+
+  <!-- Sidebar Trái: Điều khiển & Cài đặt -->
+  <div id="sidebar">
+    <button class="mobile-close-btn">&times;</button>
+    
+    <div class="sidebar-header">
+      <div class="vsepr-title" data-translate="vseprTitle">MÔ PHỎNG VSEPR</div>
+      <div class="abc-title">HÓA HỌC ABC</div>
+    </div>
+    <div class="sidebar-controls">
+      <div class="sidebar-select-group">
+        <select id="langSelect" class="sidebar-select">
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="sidebar-select-group">
+        <select id="moleculeSelect" class="sidebar-select" aria-label="Phân tử thật">
+          <option value="" disabled selected data-translate="realMolecule">Phân tử thật</option>
+          <option value="h2o">H₂O</option>
+          <option value="co2">CO₂</option>
+          <option value="so2">SO₂</option>
+          <option value="becl2">BeCl₂</option>
+          <option value="xef2">XeF₂</option>
+          <option value="bf3">BF₃</option>
+          <option value="nh3">NH₃</option>
+          <option value="pcl3">PCl₃</option>
+          <option value="clf3">ClF₃</option>
+          <option value="brf3">BrF₃</option>
+          <option value="ch4">CH₄</option>
+          <option value="sf4">SF₄</option>
+          <option value="pcl5">PCl₅</option>
+          <option value="brf5">BrF₅</option>
+          <option value="sf6">SF₆</option>
+          <option value="if7">IF₇</option>
+          <option value="nh4+">NH₄⁺</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-buttons">
+      <button id="angleBtn" class="angle-btn">Bật góc</button>
+      <button id="labelBtn" class="label-btn">Bật nhãn</button>
+      <button id="autoRotateBtn" class="rotate-btn">Bật xoay</button>
+      <button id="saveImgBtn" class="save-btn" data-translate="saveImage">Lưu ảnh</button>
+      <button id="resetBtn" data-translate="reset">Reset</button>
+      <!-- Nút Hướng dẫn -->
+      <button id="helpBtn" class="help-btn" data-translate="help">Hướng dẫn</button>
+    </div>
+  </div>
+  
+  <!-- Sidebar Phải: Thêm đối tượng & Danh sách -->
+  <div id="sidebar-right">
+    <button class="mobile-close-btn">&times;</button>
+
+    <div class="sidebar-header">
+      <div class="axne-title" id="axneFormula">AX₀E₀</div>
+    </div>
+
+    <div class="sidebar-buttons">
+      <button id="addSphereBtn" data-translate="addLonePair">Cặp electron</button>
+      <button id="addSingleBondBtn" data-translate="singleBond">Liên kết đơn</button>
+      <button id="addDoubleBondBtn" data-translate="doubleBond">Liên kết đôi</button>
+      <button id="addTripleBondBtn" data-translate="tripleBond">Liên kết ba</button>
+    </div>
+
+    <div id="sidebar-right-list-label" data-translate="objectListLabelRight">Danh sách đối tượng:</div>
+    <div id="objectListRight"></div>
+  </div>
+
+  <!-- POPUP HƯỚNG DẪN -->
+  <div id="help-modal" class="modal">
+    <div class="modal-content" style="font-family: 'Segoe UI', Arial, Helvetica, sans-serif;">
+      <div class="modal-header">
+        <h2 data-translate="helpTitle">Hướng Dẫn & Lưu Ý</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3 data-translate="helpUsageTitle">1. Cách sử dụng</h3>
+        <ul id="helpUsageList">
+          <li data-translate="helpUsage1"><strong>Xoay:</strong> Nhấn giữ chuột trái (hoặc chạm 1 ngón) và di chuyển để xoay phân tử.</li>
+          <li data-translate="helpUsage2"><strong>Zoom:</strong> Lăn chuột (hoặc dùng 2 ngón tay) để phóng to/thu nhỏ.</li>
+          <li data-translate="helpUsage3"><strong>Di chuyển đối tượng:</strong> Nhấn giữ chuột trái vào một nguyên tử/cặp e và kéo để di chuyển đối tượng sang vị trí khác.</li>
+          <li data-translate="helpUsage4"><strong>Menu Phải:</strong> Thêm các đối tượng (liên kết đơn, đôi, ba hoặc cặp electron tự do) để tự xây dựng phân tử.</li>
+          <li data-translate="helpUsage5"><strong>Menu Trái:</strong> Chọn phân tử thật có sẵn hoặc các tùy chọn hiển thị.</li>
+        </ul>
+        <hr>
+        <h3 data-translate="helpDiffTitle">2. Sự khác biệt về Góc liên kết</h3>
+        <p data-translate="helpDiffDesc">Có sự khác biệt giữa <strong>"Phân tử thật"</strong> (dữ liệu thực nghiệm) và <strong>"Mô phỏng VSEPR"</strong> (khi bạn tự thêm đối tượng):</p>
+        <ul id="helpDiffList">
+          <li data-translate="helpDiff1"><strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đ��m mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.</li>
+          <li data-translate="helpDiff2"><strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).</li>
+        </ul>
+        <p data-translate="helpDiffNote"><em>Hãy sử dụng chế độ "Phân tử thật" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em></p>
+        <hr>
+        <p style="font-size: 0.9em; color: #8faabf;" data-translate="helpSource">
+          <strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các "Phân tử thật" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="sketch.js"></script>
+</body>
+</html>
