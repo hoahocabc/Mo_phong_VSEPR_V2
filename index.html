@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <!-- Tối ưu hóa Viewport: Chặn zoom trình duyệt, hỗ trợ vùng an toàn trên iPhone -->
+  <!-- Tối ưu hóa Viewport cho Mobile: Chặn zoom, hỗ trợ vùng an toàn (tai thỏ) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Mô phỏng 3D VSEPR</title>
   <link rel="stylesheet" href="style.css">
@@ -14,7 +14,7 @@
   <!-- Lớp phủ mờ khi mở menu trên mobile -->
   <div id="mobile-overlay"></div>
 
-  <!-- Nút mở Menu Trái (Cài đặt) - Chỉ hiện trên Mobile -->
+  <!-- Nút mở Menu Trái (Cài đặt) trên mobile -->
   <button id="mobile-menu-btn" class="mobile-btn icon-btn" aria-label="Menu">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -23,7 +23,7 @@
     </svg>
   </button>
 
-  <!-- Nút mở Menu Phải (Danh sách) - Chỉ hiện trên Mobile -->
+  <!-- Nút mở Menu Phải (Danh sách) trên mobile -->
   <button id="mobile-list-btn" class="mobile-btn icon-btn" aria-label="List">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
@@ -104,7 +104,7 @@
 
   <!-- POPUP HƯỚNG DẪN -->
   <div id="help-modal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="font-family: 'Segoe UI', Arial, Helvetica, sans-serif;">
       <div class="modal-header">
         <h2 data-translate="helpTitle">Hướng Dẫn & Lưu Ý</h2>
         <span class="close-modal">&times;</span>
@@ -112,29 +112,24 @@
       <div class="modal-body">
         <h3 data-translate="helpUsageTitle">1. Cách sử dụng</h3>
         <ul id="helpUsageList">
-          <li data-translate="helpUsage1">
-            <strong>Xoay:</strong><br>
-            🖥️ PC: Nhấn giữ chuột trái và kéo.<br>
-            📱 Mobile: Vuốt 1 ngón tay trên màn hình.
-          </li>
-          <li data-translate="helpUsage2">
-            <strong>Zoom:</strong><br>
-            🖥️ PC: Lăn chuột giữa.<br>
-            📱 Mobile: Dùng 2 ngón tay (kéo ra/thu vào).
-          </li>
-          <li data-translate="helpUsage3">
-            <strong>Di chuyển nguyên tử:</strong><br>
-            🖥️ PC: Nhấn giữ chuột trái vào nguyên tử và kéo.<br>
-            📱 Mobile: Chạm giữ vào nguyên tử và kéo.
-          </li>
+          <li data-translate="helpUsage1"><strong>Xoay:</strong> Nhấn giữ chuột trái (hoặc chạm 1 ngón) và di chuyển để xoay phân tử.</li>
+          <li data-translate="helpUsage2"><strong>Zoom:</strong> Lăn chuột (hoặc dùng 2 ngón tay) để phóng to/thu nhỏ.</li>
+          <li data-translate="helpUsage3"><strong>Di chuyển đối tượng:</strong> Nhấn giữ chuột trái vào một nguyên tử/cặp e và kéo để di chuyển đối tượng sang vị trí khác.</li>
+          <li data-translate="helpUsage4"><strong>Menu Phải:</strong> Thêm các đối tượng (liên kết đơn, đôi, ba hoặc cặp electron tự do) để tự xây dựng phân tử.</li>
+          <li data-translate="helpUsage5"><strong>Menu Trái:</strong> Chọn phân tử thật có sẵn hoặc các tùy chọn hiển thị.</li>
         </ul>
         <hr>
         <h3 data-translate="helpDiffTitle">2. Sự khác biệt về Góc liên kết</h3>
-        <p data-translate="helpDiffDesc">Lưu ý sự khác biệt giữa mô hình lý thuyết và thực tế:</p>
+        <p data-translate="helpDiffDesc">Có sự khác biệt giữa <strong>"Phân tử thật"</strong> (dữ liệu thực nghiệm) và <strong>"Mô phỏng VSEPR"</strong> (khi bạn tự thêm đối tượng):</p>
         <ul id="helpDiffList">
-          <li data-translate="helpDiff1"><strong>Mô phỏng VSEPR (Menu Phải):</strong> Dựa trên lý thuyết lực đẩy electron lý tưởng.</li>
-          <li data-translate="helpDiff2"><strong>Phân tử thật (Menu Trái):</strong> Dựa trên dữ liệu thực nghiệm (độ dài, góc chính xác).</li>
+          <li data-translate="helpDiff1"><strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.</li>
+          <li data-translate="helpDiff2"><strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).</li>
         </ul>
+        <p data-translate="helpDiffNote"><em>Hãy sử dụng chế độ "Phân tử thật" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em></p>
+        <hr>
+        <p style="font-size: 0.9em; color: #8faabf;" data-translate="helpSource">
+          <strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các "Phân tử thật" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST).
+        </p>
       </div>
     </div>
   </div>
