@@ -19,7 +19,7 @@ const RED_RADIUS = 36;
 let orientationQuat = new Quaternion(1, 0, 0, 0); 
 let cnv; 
 let renderScaleMultiplier = 1;
-let isMobile = false; // Biến kiểm tra mobile
+let isMobile = false; 
 
 let isModalOpen = false;
 
@@ -94,7 +94,7 @@ const LANG = {
     helpDiffTitle: "2. Sự khác biệt về Góc liên kết",
     helpDiffDesc: "Có sự khác biệt giữa <strong>\"Phân tử thật\"</strong> (dữ liệu thực nghiệm) và <strong>\"Mô phỏng VSEPR\"</strong> (khi bạn tự thêm đối tượng):",
     helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
-    helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
+    helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực t���, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
     helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
     helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
   },
@@ -121,7 +121,7 @@ const LANG = {
 };
 let curLang = "vi";
 
-/* === CẤU HÌNH VẬT LÝ NÂNG CAO === */
+/* === CẤU HÌNH VẬT lý NÂNG CAO === */
 const MOLECULES_PRESET = {
   h2o: { bonds: [{theta: radians(52), phi: Math.PI/2, type: "single"}, {theta: radians(128), phi: Math.PI/2, type: "single"}], lonePairs: [{theta: radians(245), phi: Math.PI/2}, {theta: radians(315), phi: Math.PI/2}], physics: { lp_lp: 1.6, lp_bp: 1.208, bp_bp: 1.0 } },
   co2: { bonds: [{theta: 0, phi: Math.PI/2, type: "double"}, {theta: Math.PI, phi: Math.PI/2, type: "double"}], lonePairs: [] },
@@ -167,25 +167,23 @@ function getElementColor(sym) {
   return CPK[key] || CPK[s[0].toUpperCase()] || CPK.default;
 }
 
-// Tối ưu hóa: Giảm detail trên màn hình nhỏ hoặc khi có nhiều đối tượng
 function getDetailParams(g) {
   let scaleFactor = constrain(scale3D, 0.5, 4.0);
   let mult = map(scaleFactor, 0.5, 4.0, 0.8, 3.0);
   
-  if (g) { // Khi render ảnh chất lượng cao
+  if (g) {
     return { sphereDetailX: 128, sphereDetailY: 128, ellipsoidDetailX: 96, ellipsoidDetailY: 96, cylinderDetail: 64, arcSteps: 140 };
   } else {
-    // Tự động giảm chất lượng trên mobile hoặc màn hình nhỏ
-    if (isMobile || windowWidth < 800) { mult *= 0.65; }
+    // Chỉ giảm nhẹ trên mobile để đảm bảo vẫn tròn trịa
+    if (isMobile || windowWidth < 800) { mult *= 0.8; }
     
-    let sd = Math.max(12, Math.round(32 * mult));
-    let ed = Math.max(10, Math.round(24 * mult));
+    let sd = Math.max(16, Math.round(32 * mult));
+    let ed = Math.max(12, Math.round(24 * mult));
     let cd = Math.max(8, Math.round(16 * mult));
     
-    // Đảm bảo số chẵn
     if (sd % 2 === 1) sd++; if (ed % 2 === 1) ed++; if (cd % 2 === 1) cd++;
     
-    let arc = Math.min(80, Math.max(20, Math.round(24 * mult)));
+    let arc = Math.min(100, Math.max(24, Math.round(24 * mult)));
     return { sphereDetailX: sd, sphereDetailY: sd, ellipsoidDetailX: ed, ellipsoidDetailY: ed, cylinderDetail: cd, arcSteps: arc };
   }
 }
@@ -244,22 +242,27 @@ function preload() {
 function renderObjectList() { return; }
 
 function setup() {
-  // Check if Mobile
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || windowWidth < 800;
 
+  // Tính toán kích thước canvas chuẩn
   let cW, cH;
   const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
   const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
 
-  if (windowWidth <= 850) { cW = windowWidth; cH = windowHeight; } 
-  else { cW = windowWidth - sidebarW - sidebarRightW; cH = windowHeight; }
+  if (windowWidth <= 850) { 
+    cW = windowWidth; 
+    cH = windowHeight; // Sử dụng windowHeight thay vì 100dvh để tương thích tốt hơn với P5.js
+  } else { 
+    cW = windowWidth - sidebarW - sidebarRightW; 
+    cH = windowHeight; 
+  }
 
   cnv = createCanvas(cW, cH, WEBGL);
   cnv.parent('canvas-container');
   
-  // Tối ưu Pixel Density: Mobile dùng 1 để đỡ lag, Desktop cao có thể dùng 2
-  if (isMobile) { pixelDensity(1); } 
-  else { pixelDensity(Math.min(window.devicePixelRatio, 2)); }
+  // FIX QUAN TRỌNG: Sử dụng pixelDensity mặc định của thiết bị, nhưng giới hạn tối đa là 2
+  // Không ép về 1 trên mobile vì có thể làm hình ảnh bị vỡ/mờ trên màn hình Retina
+  pixelDensity(Math.min(window.devicePixelRatio, 2));
 
   center = createVector(0, 0, 0);
 
@@ -287,7 +290,6 @@ function setup() {
   const saveImgBtn = document.getElementById('saveImgBtn');
   if (saveImgBtn) saveImgBtn.onclick = saveHighResImage;
 
-  // Xử lý nút Hướng dẫn & biến trạng thái isModalOpen
   const helpBtn = document.getElementById('helpBtn');
   const modal = document.getElementById('help-modal');
   const closeModal = document.querySelector('.close-modal');
@@ -370,12 +372,19 @@ function setup() {
   renderObjectList();
   updateRightSidebar();
   
-  // Tối ưu hóa WebGL attributes cho tốc độ
+  // Thiết lập các thuộc tính WebGL để đảm bảo tương thích tốt nhất
   setAttributes('depth', true);
   setAttributes('alpha', true);
-  setAttributes('antialias', !isMobile); // Tắt antialias trên mobile để mượt hơn nếu cần
+  setAttributes('antialias', true); // Bật khử răng cưa
   setAttributes('perPixelLighting', true);
   
+  // FIX QUAN TRỌNG: Điều chỉnh scale ban đầu cho mobile nếu màn hình nhỏ (portrait)
+  if (windowWidth < 600) {
+    scale3D = 0.85; // Thu nhỏ một chút trên mobile portrait để vừa vặn
+  } else {
+    scale3D = 1.1;
+  }
+
   orientationQuat = new Quaternion(1,0,0,0);
   updateButtonLabels();
   updateAddButtonsLock();
@@ -383,7 +392,10 @@ function setup() {
 
 function windowResized() {
   let cW, cH;
-  if (windowWidth <= 850) { cW = windowWidth; cH = windowHeight; } else {
+  if (windowWidth <= 850) { 
+    cW = windowWidth; 
+    cH = windowHeight; 
+  } else {
     const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
     const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
     cW = windowWidth - sidebarW - sidebarRightW;
@@ -394,7 +406,7 @@ function windowResized() {
 
 function touchMoved() {
   if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
-  // Trả về false để prevent default scroll của browser khi đang thao tác trên canvas
+  // FIX QUAN TRỌNG: Return false để P5.js bắt sự kiện touch nhưng không cuộn trang
   return false; 
 }
 
@@ -427,7 +439,7 @@ function resetSystem() {
   realMolecule = null;
   draggingRef = null;
   draggingRotate = false;
-  scale3D = 1.1;
+  scale3D = (windowWidth < 600) ? 0.85 : 1.1; // Reset về scale phù hợp
   rotX = 0.8;
   rotY = -0.9;
   orientationQuat = new Quaternion(1, 0, 0, 0);
@@ -657,6 +669,9 @@ function renderScene(g, options = {}) {
     if (gfx.background) gfx.background(0); else background(0);
   }
 
+  // FIX QUAN TRỌNG: Kiểm tra nếu gfx không hợp lệ
+  if (!gfx) return;
+
   if (gfx.scale) gfx.scale(scale3D * sceneScale); else scale(scale3D * sceneScale);
 
   if (g) gfx.push(); else push();
@@ -686,7 +701,6 @@ function renderScene(g, options = {}) {
   else drawCentralPoint(g, details);
 
   if (!g) {
-    // Chỉ tính toán vật lý khi không phải là render tĩnh
     balancePhysics(); 
     if (moleculePresetIsActive && realMolecule) balancePhysicsForRealMolecule();
   }
