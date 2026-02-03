@@ -1,9 +1,11 @@
+/* --- GLOBAL RESET & OPTIMIZATION --- */
 body {
   margin: 0;
   padding: 0;
   background: #19191a;
   font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
   color: #dadce0;
+  /* MẶC ĐỊNH LÀ FLEX CHO DESKTOP */
   display: flex;
   height: 100vh; 
   height: 100dvh; /* Mobile viewport fix */
@@ -11,12 +13,11 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Ngăn chặn pull-to-refresh trên mobile */
   overscroll-behavior: none; 
 }
 
 /* 
-   === LAYOUT DESKTOP (3 Cột) === 
+   === LAYOUT DESKTOP (3 Cột - Flexbox) === 
 */
 #sidebar, #sidebar-right {
   width: 200px;
@@ -27,13 +28,12 @@ body {
   flex-direction: column;
   z-index: 20;
   overflow-y: auto;
-  /* Custom Scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #35393f #090909;
   position: relative;
   padding: 0;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform; /* Tối ưu hiệu năng animation */
+  will-change: transform;
 }
 
 #sidebar { border-right: 1.5px solid #181a1e; order: 0; }
@@ -50,7 +50,7 @@ body {
   background: #000;
   z-index: 1;
   overflow: hidden;
-  touch-action: none; /* Quan trọng: Ngăn chặn hành vi mặc định của trình duyệt để P5.js xử lý touch */
+  touch-action: none;
 }
 
 /* Ẩn UI Mobile trên Desktop */
@@ -58,14 +58,20 @@ body {
 
 /* 
    === LAYOUT MOBILE (< 850px) === 
+   QUAN TRỌNG: Ghi đè hiển thị để sửa lỗi mất hình
 */
 @media (max-width: 850px) {
-  /* Canvas full màn hình tuyệt đối để không bị che */
+  body {
+    display: block; /* Tắt Flexbox trên body để position: fixed hoạt động chuẩn */
+    position: relative;
+  }
+
   #canvas-container {
-    position: fixed;
+    display: block;
+    position: absolute; /* Hoặc fixed đều được khi body là block */
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100%; height: 100%;
-    z-index: 0; /* Nằm dưới các layer khác */
+    z-index: 1; /* Canvas nằm dưới cùng */
   }
 
   /* Nút Menu nổi */
@@ -75,12 +81,12 @@ body {
     justify-content: center;
     position: fixed;
     top: 12px;
-    width: 44px; height: 44px; /* Kích thước tối ưu cho ngón tay */
-    background: rgba(20, 20, 20, 0.65);
+    width: 44px; height: 44px;
+    background: rgba(20, 20, 20, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     color: #fff;
-    z-index: 100; /* Cao hơn canvas */
+    z-index: 150; /* Nằm trên canvas */
     cursor: pointer;
     backdrop-filter: blur(8px);
     -webkit-tap-highlight-color: transparent;
@@ -106,21 +112,35 @@ body {
   }
   #mobile-overlay.active { display: block; opacity: 1; }
 
-  /* Sidebar dạng Drawer */
+  /* Sidebar dạng Drawer - Phải đè lên mọi thứ */
   #sidebar, #sidebar-right {
     position: fixed;
     top: 0;
-    height: 100dvh;
+    height: 100dvh; /* Chiều cao full màn hình */
     width: 280px; 
     max-width: 85vw;
-    z-index: 200;
+    z-index: 200; /* Z-index cao nhất */
     box-shadow: 0 0 30px rgba(0,0,0,0.8);
     background: #111;
+    /* Reset các thuộc tính Flexbox của Desktop */
+    order: unset; 
+    border: none;
   }
 
-  #sidebar { left: 0; transform: translateX(-100%); border-right: 1px solid #333; }
-  #sidebar-right { right: 0; transform: translateX(100%); border-left: 1px solid #333; }
+  /* Ẩn sidebar bằng transform */
+  #sidebar { 
+    left: 0; 
+    transform: translateX(-100%); 
+    border-right: 1px solid #333; 
+  }
+  
+  #sidebar-right { 
+    right: 0; 
+    transform: translateX(100%); 
+    border-left: 1px solid #333; 
+  }
 
+  /* Khi active thì trượt vào */
   #sidebar.open { transform: translateX(0); }
   #sidebar-right.open { transform: translateX(0); }
 
@@ -131,7 +151,7 @@ body {
     justify-content: center;
     position: absolute;
     top: 10px; right: 10px;
-    width: 40px; height: 40px; /* Touch target lớn */
+    width: 40px; height: 40px;
     background: rgba(255,255,255,0.08);
     border-radius: 50%;
     border: none;
@@ -142,22 +162,20 @@ body {
   }
   .mobile-close-btn:active { background: rgba(255,255,255,0.2); color: #fff; }
 
-  /* Tối ưu khoảng cách nội dung trên mobile */
+  /* UI Tweaks Mobile */
   .sidebar-controls, .sidebar-buttons { padding: 15px; gap: 8px; }
   .sidebar-header { padding-top: 20px; }
   
-  /* Nút bấm lớn hơn trên mobile */
   #sidebar button:not(.mobile-close-btn), 
   #sidebar-right button:not(.mobile-close-btn) {
     min-height: 48px; 
-    font-size: 16px; /* Font size chuẩn mobile để tránh zoom khi focus */
+    font-size: 16px; 
   }
   .sidebar-select { padding: 12px; font-size: 16px; }
 }
 
-/* --- SIDEBAR COMPONENTS --- */
+/* --- SIDEBAR COMPONENTS (GIỮ NGUYÊN) --- */
 
-/* Scrollbar đẹp hơn */
 #sidebar::-webkit-scrollbar, #sidebar-right::-webkit-scrollbar { width: 5px; }
 #sidebar::-webkit-scrollbar-thumb, #sidebar-right::-webkit-scrollbar-thumb { background: #323237; border-radius: 3px; }
 #sidebar::-webkit-scrollbar-track, #sidebar-right::-webkit-scrollbar-track { background: #171717; }
@@ -200,7 +218,7 @@ body {
 /* Các nút bấm chính */
 #sidebar .sidebar-buttons, #sidebar-right .sidebar-buttons {
   display: flex; flex-direction: column; 
-  gap: 2px; /* Cách đều 2px */
+  gap: 2px; 
   margin-top: 15px; margin-bottom: 10px; padding: 0 12px;
 }
 
@@ -213,7 +231,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hover effect cho Desktop */
 @media (hover: hover) {
   #sidebar button:not(.object-x):not(.mobile-close-btn):hover:enabled, 
   #sidebar-right button:not(.object-x):not(.mobile-close-btn):hover:enabled {
@@ -237,7 +254,7 @@ body {
 .help-btn {
   background: none !important; border: none !important;
   color: #8faabf !important;
-  margin-top: 6px !important; /* Tách biệt một chút */
+  margin-top: 6px !important;
   box-shadow: none !important;
   font-size: 0.9em !important;
   text-decoration: underline; text-decoration-color: rgba(143, 170, 191, 0.3);
@@ -274,7 +291,7 @@ body {
   backdrop-filter: blur(3px);
   align-items: center; justify-content: center;
   opacity: 0; transition: opacity 0.25s ease;
-  padding: 10px; /* Padding tránh sát mép màn hình mobile */
+  padding: 10px;
   box-sizing: border-box;
 }
 .modal.show { display: flex; opacity: 1; }
@@ -283,7 +300,7 @@ body {
   background-color: #1e2024;
   border: 1px solid #383c45; border-radius: 12px;
   width: 100%; max-width: 550px;
-  max-height: 85vh; /* Giới hạn chiều cao */
+  max-height: 85vh;
   box-shadow: 0 15px 40px rgba(0,0,0,0.6);
   display: flex; flex-direction: column;
   animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -295,7 +312,7 @@ body {
   padding: 15px 20px;
   border-bottom: 1px solid #2c3038;
   display: flex; justify-content: space-between; align-items: center;
-  flex-shrink: 0; /* Không bị co lại */
+  flex-shrink: 0;
 }
 .modal-header h2 { margin: 0; font-size: 1.2em; color: #7fcfff; }
 
@@ -307,9 +324,9 @@ body {
 
 .modal-body {
   padding: 20px; 
-  overflow-y: auto; /* Scroll nội dung nếu quá dài */
+  overflow-y: auto;
   color: #d0d2d6; line-height: 1.55;
-  -webkit-overflow-scrolling: touch; /* Scroll mượt trên iOS */
+  -webkit-overflow-scrolling: touch;
 }
 .modal-body h3 { 
   margin-top: 0; color: #ffe08f; font-size: 1.1em; 

@@ -1,9 +1,8 @@
-// --- KHAI BÁO BIẾN TOÀN CỤC (GLOBAL) ---
 let spheres = [];
 let realMolecule = null;
 let draggingRef = null; 
 let draggingRotate = false, prevMouseX, prevMouseY;
-let scale3D = 1.1; // Scale mặc định sẽ được tính lại trong setup()
+let scale3D = 1.1;
 let rotX = 0.8, rotY = -0.9;
 let center;
 const CORD_LENGTH = 70;
@@ -17,47 +16,57 @@ const OVAL_B = 27;
 const OVAL_C = 27;
 const RED_RADIUS = 36;
 
-let orientationQuat;
+let orientationQuat = new Quaternion(1, 0, 0, 0); 
 let cnv; 
 let renderScaleMultiplier = 1;
 let isMobile = false; 
 
-// Các biến trạng thái giao diện
 let isModalOpen = false;
-let pointerOnSidebar = false;
-let pointerOnSidebarRight = false;
-let sphereIdCounter = 1;
-let showAngle = false;
-let showLabels = false;
-let autoRotate = false;
-let angleRepresentatives = [];
-let dragObjUnit = null;
-let dragObjRadius = null;
-let lastMoleculeSelect = "";
-let moleculePresetIsActive = false;
-let useTrackball = true;
 
-// --- CẤU HÌNH MÀU SẮC ---
+// --- CẤU HÌNH MÀU SẮC CHUẨN ---
 const CPK = {
-  H: [235, 235, 235], C: [70, 70, 70], N: [50, 80, 255], O: [255, 30, 30],
-  F: [155, 235, 90], Cl: [50, 255, 50], Br: [180, 50, 50], I: [160, 0, 160],
-  P: [255, 140, 0], S: [255, 240, 60], B: [255, 185, 185], Be: [210, 255, 50],
-  Xe: [160, 220, 255], default: [225, 225, 225]
+  H: [235, 235, 235],
+  C: [70, 70, 70],
+  N: [50, 80, 255],
+  O: [255, 30, 30],
+  F: [155, 235, 90],  
+  Cl: [50, 255, 50],
+  Br: [180, 50, 50], 
+  I: [160, 0, 160],
+  P: [255, 140, 0],
+  S: [255, 240, 60],
+  B: [255, 185, 185], 
+  Be: [210, 255, 50],
+  Xe: [160, 220, 255], 
+  default: [225, 225, 225]
 };
 
 const UI_COLORS = {
-  ovalFill: [100, 160, 255, 180], ovalFillUser: [100, 160, 255, 150],
-  electron: [255, 225, 40], bond: [200, 200, 200], angleArc: [0, 229, 255],
+  ovalFill: [100, 160, 255, 180],
+  ovalFillUser: [100, 160, 255, 150],
+  electron: [255, 225, 40],
+  bond: [200, 200, 200],
+  angleArc: [0, 229, 255],
   labelText: [10,10,10]
 };
 
 const ELEMENT_LABELS = {
-  h2o: ["O", "H", "H"], co2: ["C", "O", "O"], so2: ["S", "O", "O"],
-  becl2: ["Be", "Cl", "Cl"], xef2: ["Xe", "F", "F"], bf3: ["B", "F", "F", "F"],
-  nh3: ["N", "H", "H", "H"], pcl3: ["P", "Cl", "Cl", "Cl"], clf3: ["Cl", "F", "F", "F"],
-  brf3: ["Br", "F", "F", "F"], ch4: ["C", "H", "H", "H", "H"], sf4: ["S", "F", "F", "F", "F"],
-  pcl5: ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], brf5: ["Br", "F", "F", "F", "F", "F"],
-  sf6: ["S", "F", "F", "F", "F", "F", "F"], if7: ["I", "F", "F", "F", "F", "F", "F", "F"],
+  h2o: ["O", "H", "H"],
+  co2: ["C", "O", "O"],
+  so2: ["S", "O", "O"],
+  becl2: ["Be", "Cl", "Cl"],
+  xef2: ["Xe", "F", "F"],
+  bf3: ["B", "F", "F", "F"],
+  nh3: ["N", "H", "H", "H"],
+  pcl3: ["P", "Cl", "Cl", "Cl"],
+  clf3: ["Cl", "F", "F", "F"],
+  brf3: ["Br", "F", "F", "F"],
+  ch4: ["C", "H", "H", "H", "H"],
+  sf4: ["S", "F", "F", "F", "F"],
+  pcl5: ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
+  brf5: ["Br", "F", "F", "F", "F", "F"],
+  sf6: ["S", "F", "F", "F", "F", "F", "F"],
+  if7: ["I", "F", "F", "F", "F", "F", "F", "F"],
   "nh4+": ["N", "H", "H", "H", "H"]
 };
 const CENTRAL_LABELS = {
@@ -70,26 +79,49 @@ const STRICT_LINEAR_MOLECULES = ["co2", "becl2"];
 
 const LANG = {
   vi: {
-    vseprTitle: "MÔ PHỎNG VSEPR", addLonePair: "Cặp electron",
+    vseprTitle: "MÔ PHỎNG VSEPR", controlsLabel: "Điều khiển", addLonePair: "Cặp electron",
     singleBond: "Liên kết đơn", doubleBond: "Liên kết đôi", tripleBond: "Liên kết ba",
-    objectListLabelRight: "Danh sách đối tượng:", reset: "Reset", realMolecule: "Phân tử thật",
-    saveImage: "Lưu ảnh", turnOn: "Bật", turnOff: "Tắt", angle: "góc", label: "nhãn", autoRotate: "xoay",
-    help: "Hướng dẫn", helpTitle: "Hướng Dẫn",
-    helpUsage1: "Xoay: Chạm 1 ngón.", helpUsage2: "Zoom: 2 ngón.",
-    helpDiffTitle: "Lưu ý", helpDiffDesc: "Góc liên kết thực tế khác lý thuyết."
+    objectListLabel: "Danh sách đối tượng:", objectListLabelRight: "Danh sách đối tượng:",
+    reset: "Reset", realMolecule: "Phân tử thật", saveImage: "Lưu ảnh",
+    turnOn: "Bật", turnOff: "Tắt", angle: "góc", label: "nhãn", autoRotate: "xoay",
+    help: "Hướng dẫn", helpTitle: "Hướng Dẫn & Lưu Ý",
+    helpUsageTitle: "1. Cách sử dụng",
+    helpUsage1: "<strong>Xoay:</strong> Nhấn giữ chuột trái (hoặc chạm 1 ngón) và di chuyển để xoay phân tử.",
+    helpUsage2: "<strong>Zoom:</strong> Lăn chuột (hoặc dùng 2 ngón tay) để phóng to/thu nhỏ.",
+    helpUsage3: "<strong>Di chuyển đối tượng:</strong> Nhấn giữ chuột trái vào một nguyên tử/cặp e và kéo để di chuyển đối tượng sang vị trí khác.",
+    helpUsage4: "<strong>Menu Phải:</strong> Thêm các đối tượng (liên kết đơn, đôi, ba hoặc cặp electron tự do) để tự xây dựng phân tử.",
+    helpUsage5: "<strong>Menu Trái:</strong> Chọn phân tử thật có sẵn hoặc các tùy chọn hiển thị.",
+    helpDiffTitle: "2. Sự khác biệt về Góc liên kết",
+    helpDiffDesc: "Có sự khác biệt giữa <strong>\"Phân tử thật\"</strong> (dữ liệu thực nghiệm) và <strong>\"Mô phỏng VSEPR\"</strong> (khi bạn tự thêm đối tượng):",
+    helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
+    helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
+    helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
+    helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
   },
   en: {
-    vseprTitle: "VSEPR SIMULATION", addLonePair: "Electron pair",
+    vseprTitle: "VSEPR SIMULATION", controlsLabel: "Controls", addLonePair: "Electron pair",
     singleBond: "Single bond", doubleBond: "Double bond", tripleBond: "Triple bond",
-    objectListLabelRight: "Objects:", reset: "Reset", realMolecule: "Real molecule",
-    saveImage: "Save Image", turnOn: "Show", turnOff: "Hide", angle: "angle", label: "label", autoRotate: "auto-rotate",
-    help: "Guide", helpTitle: "Guide",
-    helpUsage1: "Rotate: 1 finger.", helpUsage2: "Zoom: 2 fingers.",
-    helpDiffTitle: "Note", helpDiffDesc: "Real angles differ from theory."
+    objectListLabel: "Objects:", objectListLabelRight: "Objects:", reset: "Reset",
+    realMolecule: "Real molecule", saveImage: "Save Image",
+    turnOn: "Show", turnOff: "Hide", angle: "angle", label: "label", autoRotate: "auto-rotate",
+    help: "Guide / Help", helpTitle: "Guide & Notes",
+    helpUsageTitle: "1. How to use",
+    helpUsage1: "<strong>Rotate:</strong> Hold left mouse button (or 1 finger touch) and drag to rotate.",
+    helpUsage2: "<strong>Zoom:</strong> Scroll mouse wheel (or pinch with 2 fingers) to zoom in/out.",
+    helpUsage3: "<strong>Move Object:</strong> Click and hold left mouse button on an atom/electron pair and drag to move the object to another position.",
+    helpUsage4: "<strong>Right Menu:</strong> Add objects (single/double/triple bonds or lone pairs) to build your own molecule.",
+    helpUsage5: "<strong>Left Menu:</strong> Select preset real molecules or toggle display options.",
+    helpDiffTitle: "2. Bond Angle Differences",
+    helpDiffDesc: "There is a difference between <strong>\"Real Molecules\"</strong> (experimental data) and <strong>\"VSEPR Simulation\"</strong> (when you build it yourself):",
+    helpDiff1: "<strong>VSEPR Simulation (Right Sidebar):</strong> The system calculates geometry based on simple electrostatic repulsion between electron clouds. Bonds and lone pairs are treated as point charges repelling each other to reach an ideal geometric equilibrium.",
+    helpDiff2: "<strong>Real Molecule (Left Sidebar):</strong> Bond angles are taken from experimental data. In reality, factors like <em>electronegativity</em>, <em>atomic size</em>, and <em>orbital hybridization</em> cause bond angles to deviate from ideal VSEPR theory (e.g., H-O-H angle in water is 104.5° instead of the ideal tetrahedral 109.5°).",
+    helpDiffNote: "<em>Use \"Real Molecule\" mode for accurate data, and build mode to understand VSEPR repulsion principles.</em>",
+    helpSource: "<strong>Data Source:</strong> Bond lengths and angles for \"Real Molecules\" are referenced from the <em>CRC Handbook of Chemistry and Physics</em> and standard chemical structure databases (NIST)."
   }
 };
 let curLang = "vi";
 
+/* === CẤU HÌNH VẬT lý NÂNG CAO === */
 const MOLECULES_PRESET = {
   h2o: { bonds: [{theta: radians(52), phi: Math.PI/2, type: "single"}, {theta: radians(128), phi: Math.PI/2, type: "single"}], lonePairs: [{theta: radians(245), phi: Math.PI/2}, {theta: radians(315), phi: Math.PI/2}], physics: { lp_lp: 1.6, lp_bp: 1.208, bp_bp: 1.0 } },
   co2: { bonds: [{theta: 0, phi: Math.PI/2, type: "double"}, {theta: Math.PI, phi: Math.PI/2, type: "double"}], lonePairs: [] },
@@ -110,6 +142,21 @@ const MOLECULES_PRESET = {
   "nh4+": { bonds: [{theta: 0, phi: 0, type: "single"}, {theta: Math.PI/2, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI, phi: Math.acos(-1/3), type: "single"}, {theta: 3*Math.PI/2, phi: Math.acos(-1/3), type: "single"}], lonePairs: [] }
 };
 
+let pointerOnSidebar = false;
+let pointerOnSidebarRight = false;
+let sphereIdCounter = 1;
+
+let showAngle = false;
+let showLabels = false;
+let autoRotate = false;
+
+let angleRepresentatives = [];
+let dragObjUnit = null;
+let dragObjRadius = null;
+let lastMoleculeSelect = "";
+let moleculePresetIsActive = false;
+let useTrackball = true;
+
 function radians(x) { return x * Math.PI / 180; }
 function degrees(x) { return x * 180 / Math.PI; }
 
@@ -124,17 +171,19 @@ function getDetailParams(g) {
   let scaleFactor = constrain(scale3D, 0.5, 4.0);
   let mult = map(scaleFactor, 0.5, 4.0, 0.8, 3.0);
   
-  if (g) { 
+  if (g) {
     return { sphereDetailX: 128, sphereDetailY: 128, ellipsoidDetailX: 96, ellipsoidDetailY: 96, cylinderDetail: 64, arcSteps: 140 };
   } else {
-    if (isMobile || windowWidth < 800) { 
-        return { sphereDetailX: 12, sphereDetailY: 12, ellipsoidDetailX: 10, ellipsoidDetailY: 10, cylinderDetail: 8, arcSteps: 24 };
-    }
-    let sd = Math.max(12, Math.round(32 * mult));
-    let ed = Math.max(10, Math.round(24 * mult));
+    // Chỉ giảm nhẹ trên mobile để đảm bảo vẫn tròn trịa
+    if (isMobile || windowWidth < 800) { mult *= 0.8; }
+    
+    let sd = Math.max(16, Math.round(32 * mult));
+    let ed = Math.max(12, Math.round(24 * mult));
     let cd = Math.max(8, Math.round(16 * mult));
+    
     if (sd % 2 === 1) sd++; if (ed % 2 === 1) ed++; if (cd % 2 === 1) cd++;
-    let arc = Math.min(80, Math.max(20, Math.round(24 * mult)));
+    
+    let arc = Math.min(100, Math.max(24, Math.round(24 * mult)));
     return { sphereDetailX: sd, sphereDetailY: sd, ellipsoidDetailX: ed, ellipsoidDetailY: ed, cylinderDetail: cd, arcSteps: arc };
   }
 }
@@ -190,31 +239,30 @@ function preload() {
   try { arialFont = loadFont('Arial.ttf'); } catch (e) { arialFont = null; }
 }
 
-function setup() {
-  orientationQuat = new Quaternion(1, 0, 0, 0); 
+function renderObjectList() { return; }
 
+function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || windowWidth < 800;
 
-  // Cân chỉnh SCALE cho mobile để đối tượng không bị quá to hoặc quá nhỏ
-  if(isMobile) scale3D = 0.65; // Giảm scale mặc định trên mobile
-  else scale3D = 1.1;
-
+  // Tính toán kích thước canvas chuẩn
   let cW, cH;
-  if (isMobile) { 
+  const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
+  const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
+
+  if (windowWidth <= 850) { 
     cW = windowWidth; 
+    cH = windowHeight; // Sử dụng windowHeight thay vì 100dvh để tương thích tốt hơn với P5.js
+  } else { 
+    cW = windowWidth - sidebarW - sidebarRightW; 
     cH = windowHeight; 
-  } else {
-    const sidebarW = document.getElementById('sidebar') ? document.getElementById('sidebar').offsetWidth : 0;
-    const sidebarRightW = document.getElementById('sidebar-right') ? document.getElementById('sidebar-right').offsetWidth : 0;
-    cW = windowWidth - sidebarW - sidebarRightW;
-    cH = windowHeight;
   }
 
   cnv = createCanvas(cW, cH, WEBGL);
   cnv.parent('canvas-container');
   
-  if (isMobile) { pixelDensity(1); } 
-  else { pixelDensity(Math.min(window.devicePixelRatio, 2)); }
+  // FIX QUAN TRỌNG: Sử dụng pixelDensity mặc định của thiết bị, nhưng giới hạn tối đa là 2
+  // Không ép về 1 trên mobile vì có thể làm hình ảnh bị vỡ/mờ trên màn hình Retina
+  pixelDensity(Math.min(window.devicePixelRatio, 2));
 
   center = createVector(0, 0, 0);
 
@@ -222,12 +270,10 @@ function setup() {
   textSize(25);
   textAlign(CENTER, CENTER);
 
-  const attachClick = (id, func) => { let el = document.getElementById(id); if(el) el.onclick = func; };
-  
-  attachClick('addSphereBtn', addSphere);
-  attachClick('addSingleBondBtn', () => addBondSphere("single"));
-  attachClick('addDoubleBondBtn', () => addBondSphere("double"));
-  attachClick('addTripleBondBtn', () => addBondSphere("triple"));
+  document.getElementById('addSphereBtn').onclick = () => { addSphere(); };
+  document.getElementById('addSingleBondBtn').onclick = () => { addBondSphere("single"); };
+  document.getElementById('addDoubleBondBtn').onclick = () => { addBondSphere("double"); };
+  document.getElementById('addTripleBondBtn').onclick = () => { addBondSphere("triple"); };
 
   const angleBtnElem = document.getElementById('angleBtn');
   if (angleBtnElem) angleBtnElem.onclick = () => { showAngle = !showAngle; updateAngleRepresentatives(); updateButtonLabels(); };
@@ -248,70 +294,110 @@ function setup() {
   const modal = document.getElementById('help-modal');
   const closeModal = document.querySelector('.close-modal');
   
-  if(helpBtn) helpBtn.onclick = () => { if(modal) { modal.classList.add('show'); isModalOpen = true; } };
-  const hideModal = () => { if(modal) { modal.classList.remove('show'); isModalOpen = false; } };
+  if(helpBtn) helpBtn.onclick = () => { 
+    if(modal) {
+      modal.classList.add('show'); 
+      isModalOpen = true; 
+    }
+  };
+  
+  const hideModal = () => {
+    if(modal) {
+      modal.classList.remove('show');
+      isModalOpen = false;
+    }
+  };
+
   if(closeModal) closeModal.onclick = hideModal;
-  window.addEventListener('click', (e) => { if(modal && e.target === modal) hideModal(); });
+  
+  window.addEventListener('click', (e) => {
+    if(modal && e.target === modal) hideModal();
+  });
 
   const sidebar = document.getElementById('sidebar');
   const sidebarRight = document.getElementById('sidebar-right');
+
+  const setSidebarPointer = (val) => { pointerOnSidebar = val; };
+  const setSidebarRightPointer = (val) => { pointerOnSidebarRight = val; };
+
+  sidebar.addEventListener('mouseenter', () => setSidebarPointer(true));
+  sidebar.addEventListener('mouseleave', () => setSidebarPointer(false));
+  sidebar.addEventListener('touchstart', () => setSidebarPointer(true), {passive: true});
+  sidebar.addEventListener('touchend', () => setSidebarPointer(false));
+
+  sidebarRight.addEventListener('mouseenter', () => setSidebarRightPointer(true));
+  sidebarRight.addEventListener('mouseleave', () => setSidebarRightPointer(false));
+  sidebarRight.addEventListener('touchstart', () => setSidebarRightPointer(true), {passive: true});
+  sidebarRight.addEventListener('touchend', () => setSidebarRightPointer(false));
+
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const mobileListBtn = document.getElementById('mobile-list-btn');
   const overlay = document.getElementById('mobile-overlay');
   const closeBtns = document.querySelectorAll('.mobile-close-btn');
 
   function closeAllMenus() {
-    if(sidebar) sidebar.classList.remove('open');
-    if(sidebarRight) sidebarRight.classList.remove('open');
-    if(overlay) overlay.classList.remove('active');
+    sidebar.classList.remove('open');
+    sidebarRight.classList.remove('open');
+    overlay.classList.remove('active');
+    pointerOnSidebar = false;
+    pointerOnSidebarRight = false;
   }
 
-  if (mobileMenuBtn && sidebar) {
+  if (mobileMenuBtn) {
     mobileMenuBtn.onclick = () => {
       sidebar.classList.toggle('open');
-      if(sidebarRight) sidebarRight.classList.remove('open');
-      if (sidebar.classList.contains('open')) { if(overlay) overlay.classList.add('active'); } 
-      else { if(overlay) overlay.classList.remove('active'); }
+      sidebarRight.classList.remove('open');
+      if (sidebar.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebar = true; } else { overlay.classList.remove('active'); }
     };
   }
 
-  if (mobileListBtn && sidebarRight) {
+  if (mobileListBtn) {
     mobileListBtn.onclick = () => {
       sidebarRight.classList.toggle('open');
-      if(sidebar) sidebar.classList.remove('open');
-      if (sidebarRight.classList.contains('open')) { if(overlay) overlay.classList.add('active'); } 
-      else { if(overlay) overlay.classList.remove('active'); }
+      sidebar.classList.remove('open');
+      if (sidebarRight.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebarRight = true; } else { overlay.classList.remove('active'); }
     };
   }
 
   if (overlay) overlay.onclick = closeAllMenus;
   closeBtns.forEach(btn => btn.onclick = closeAllMenus);
 
-  let langSel = document.getElementById('langSelect');
-  if(langSel) langSel.addEventListener('change', function(e){ curLang = this.value; updateButtonLabels(); });
+  document.getElementById('langSelect').addEventListener('change', function(e){ curLang = this.value; updateButtonLabels(); });
 
-  let molSel = document.getElementById('moleculeSelect');
-  if(molSel) molSel.addEventListener('change', function(e){
+  document.getElementById('moleculeSelect').addEventListener('change', function(e){
     let val = this.value;
     if (val) { lastMoleculeSelect = val; loadRealMolecule(val); updateAddButtonsLock(); }
   });
 
+  renderObjectList();
+  updateRightSidebar();
+  
+  // Thiết lập các thuộc tính WebGL để đảm bảo tương thích tốt nhất
   setAttributes('depth', true);
-  setAttributes('alpha', false); 
-  setAttributes('antialias', !isMobile); 
+  setAttributes('alpha', true);
+  setAttributes('antialias', true); // Bật khử răng cưa
   setAttributes('perPixelLighting', true);
   
+  // FIX QUAN TRỌNG: Điều chỉnh scale ban đầu cho mobile nếu màn hình nhỏ (portrait)
+  if (windowWidth < 600) {
+    scale3D = 0.85; // Thu nhỏ một chút trên mobile portrait để vừa vặn
+  } else {
+    scale3D = 1.1;
+  }
+
+  orientationQuat = new Quaternion(1,0,0,0);
   updateButtonLabels();
   updateAddButtonsLock();
 }
 
 function windowResized() {
   let cW, cH;
-  if (isMobile || windowWidth <= 850) { 
-    cW = windowWidth; cH = windowHeight; 
+  if (windowWidth <= 850) { 
+    cW = windowWidth; 
+    cH = windowHeight; 
   } else {
-    const sidebarW = document.getElementById('sidebar') ? document.getElementById('sidebar').offsetWidth : 0;
-    const sidebarRightW = document.getElementById('sidebar-right') ? document.getElementById('sidebar-right').offsetWidth : 0;
+    const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
+    const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
     cW = windowWidth - sidebarW - sidebarRightW;
     cH = windowHeight;
   }
@@ -319,49 +405,13 @@ function windowResized() {
 }
 
 function touchMoved() {
-  if (isModalOpen) return true;
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
+  // FIX QUAN TRỌNG: Return false để P5.js bắt sự kiện touch nhưng không cuộn trang
   return false; 
-}
-
-function touchStarted() {
-    if (touches.length > 0) {
-        mouseX = touches[0].x;
-        mouseY = touches[0].y;
-    }
-
-    let touchX = mouseX;
-    let sb = document.getElementById('sidebar');
-    let sbRight = document.getElementById('sidebar-right');
-    
-    let leftOpen = sb && sb.classList.contains('open');
-    let rightOpen = sbRight && sbRight.classList.contains('open');
-
-    if (leftOpen && touchX < 280) return true;
-    if (rightOpen && touchX > width - 280) return true;
-    if (isModalOpen) return true;
-    if (mouseY < 60 && (touchX < 60 || touchX > width - 60)) return true;
-
-    mousePressed();
-    return false;
-}
-
-function touchEnded() {
-    let sb = document.getElementById('sidebar');
-    let sbRight = document.getElementById('sidebar-right');
-    let leftOpen = sb && sb.classList.contains('open');
-    let rightOpen = sbRight && sbRight.classList.contains('open');
-    
-    if (leftOpen && mouseX < 280) return true;
-    if (rightOpen && mouseX > width - 280) return true;
-    if (isModalOpen) return true;
-
-    mouseReleased();
-    return false;
 }
 
 function shouldLockAddButtons() {
   const moleculeSelect = document.getElementById('moleculeSelect');
-  if(!moleculeSelect) return false;
   let val = moleculeSelect.value;
   let preset = MOLECULES_PRESET[val];
   if (val && preset) {
@@ -389,8 +439,7 @@ function resetSystem() {
   realMolecule = null;
   draggingRef = null;
   draggingRotate = false;
-  // Reset scale cho phù hợp với từng loại thiết bị
-  if(isMobile) scale3D = 0.65; else scale3D = 1.1; 
+  scale3D = (windowWidth < 600) ? 0.85 : 1.1; // Reset về scale phù hợp
   rotX = 0.8;
   rotY = -0.9;
   orientationQuat = new Quaternion(1, 0, 0, 0);
@@ -400,6 +449,7 @@ function resetSystem() {
   showLabels = false;
   moleculePresetIsActive = false;
   autoRotate = false;
+  renderObjectList();
   updateRightSidebar();
   setAXnEmFormula();
   let molSelect = document.getElementById('moleculeSelect');
@@ -407,11 +457,10 @@ function resetSystem() {
   lastMoleculeSelect = "";
   updateAddButtonsLock();
   updateButtonLabels();
-  
-  if (isMobile) {
-    let sb = document.getElementById('sidebar'); if(sb) sb.classList.remove('open');
-    let sbR = document.getElementById('sidebar-right'); if(sbR) sbR.classList.remove('open');
-    let ov = document.getElementById('mobile-overlay'); if(ov) ov.classList.remove('active');
+  if (windowWidth <= 850) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-right').classList.remove('open');
+    document.getElementById('mobile-overlay').classList.remove('active');
   }
 }
 
@@ -452,6 +501,7 @@ function loadRealMolecule(molKey) {
   }
   for (let i = 0; i < 600; i++) balancePhysicsForRealMolecule(true);
   updateAngleRepresentatives();
+  renderObjectList();
   updateRightSidebar();
   setAXnEmFormula();
   updateAddButtonsLock();
@@ -490,6 +540,7 @@ function addBondSphere(bondType) {
 function updateSystemState() {
   updateAngleRepresentatives();
   renderScene(); 
+  renderObjectList();
   updateRightSidebar();
   setAXnEmFormula();
   updateAddButtonsLock();
@@ -589,10 +640,7 @@ function getAngleLabelPosition(arr, idxA, idxB) {
 }
 
 function getDistToCamera(posWorld) {
-  // Điều chỉnh camera Z phù hợp với chiều cao màn hình
-  let fov = Math.PI / 3;
-  let camZ = (height / 2.0) / Math.tan(fov / 2.0); 
-  
+  let camZ = (height / 2.0) / Math.tan(Math.PI / 6.0);
   let transformed = createVector(posWorld.x, posWorld.y, posWorld.z);
   if (useTrackball && orientationQuat) {
     let rArr = orientationQuat.multVec([transformed.x, transformed.y, transformed.z]);
@@ -621,6 +669,9 @@ function renderScene(g, options = {}) {
     if (gfx.background) gfx.background(0); else background(0);
   }
 
+  // FIX QUAN TRỌNG: Kiểm tra nếu gfx không hợp lệ
+  if (!gfx) return;
+
   if (gfx.scale) gfx.scale(scale3D * sceneScale); else scale(scale3D * sceneScale);
 
   if (g) gfx.push(); else push();
@@ -645,8 +696,7 @@ function renderScene(g, options = {}) {
   if (gfx.directionalLight) gfx.directionalLight(180, 180, 180, 0.5, 0.5, -1); else directionalLight(180, 180, 180, 0.5, 0.5, -1); 
   if (gfx.pointLight) gfx.pointLight(40, 40, 40, 0, 0, 300); else pointLight(40, 40, 40, 0, 0, 300);
 
-  // --- VẼ QUẢ CẦU TRUNG TÂM ---
-  // Luôn luôn vẽ quả cầu trung tâm bất kể có phân tử thật hay không
+  // 1. VẼ HÌNH HỌC 3D (QUẢ CẦU, LIÊN KẾT)
   if (moleculePresetIsActive && realMolecule) drawRealCentral(realMolecule.center, g, details);
   else drawCentralPoint(g, details);
 
@@ -692,7 +742,7 @@ function renderScene(g, options = {}) {
     }
   }
 
-  // 2. VẼ NHÃN VÀ GÓC
+  // 2. VẼ NHÃN VÀ GÓC (TRANSPARENCY SORTING)
   let labelsToDraw = [];
 
   if (showAngle) {
@@ -714,9 +764,6 @@ function renderScene(g, options = {}) {
     if (moleculePresetIsActive && realMolecule && realMolecule.centralLabel) centerLabel = realMolecule.centralLabel;
     else if (!moleculePresetIsActive && spheres.find(s => s && s.type === "white")) centerLabel = "A";
     
-    // Luôn vẽ nhãn trung tâm nếu không có đối tượng nào hoặc đang ở chế độ tự do
-    if (!moleculePresetIsActive && spheres.length === 0) centerLabel = "A"; 
-
     if (centerLabel) {
       let drawPos = centerPos.copy(); drawPos.z += 50; 
       labelsToDraw.push({ type: 'text', text: centerLabel, pos: centerPos, isCentral: true, dist: getDistToCamera(drawPos) });
@@ -758,7 +805,7 @@ function renderScene(g, options = {}) {
 }
 
 function draw() {
-  try { renderScene(); } catch (err) { }
+  try { renderScene(); } catch (err) { console.error("Render error:", err); }
 }
 
 function getCurrentCameraParams() {
@@ -800,7 +847,7 @@ function saveHighResImage() {
     link.href = dataURL; link.download = 'vsepr_4k_transparent.png';
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
     gfx.remove();
-  } catch (e) { alert("Lỗi lưu ảnh."); }
+  } catch (e) { console.error("Lỗi khi lưu ảnh:", e); alert("Không thể lưu ảnh."); }
 }
 
 function drawAllLabels(g, details) { }
@@ -1137,7 +1184,7 @@ function findHitSphere(mx, my) {
 }
 
 function mousePressed() {
-  if (isModalOpen) return;
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return;
   let mx = mouseX - width / 2;
   let my = mouseY - height / 2;
   let best = findHitSphere(mx, my);
@@ -1156,7 +1203,7 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  if (isModalOpen) return;
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return;
   if (draggingRef && dragObjUnit) {
     let arr = (draggingRef.which === 'user') ? spheres : realMolecule.atoms;
     if (!arr || !arr[draggingRef.idx]) { draggingRef = null; return; }
@@ -1209,7 +1256,7 @@ function mouseReleased() {
 }
 
 function mouseWheel(event) {
-  if (!isModalOpen) {
+  if (!isModalOpen && !pointerOnSidebar && !pointerOnSidebarRight) {
     scale3D = constrain(scale3D - event.delta * 0.001, 0.2, 4);
   }
 }
