@@ -125,7 +125,17 @@ let curLang = "vi";
 
 /* === CẤU HÌNH VẬT lý NÂNG CAO === */
 const MOLECULES_PRESET = {
-  h2o: { bonds: [{theta: radians(52), phi: Math.PI/2, type: "single"}, {theta: radians(128), phi: Math.PI/2, type: "single"}], lonePairs: [{theta: radians(245), phi: Math.PI/2}, {theta: radians(315), phi: Math.PI/2}], physics: { lp_lp: 1.6, lp_bp: 1.208, bp_bp: 1.0 } },
+  h2o: { 
+      bonds: [
+          {theta: 0, phi: 2.1, type: "single"},     
+          {theta: Math.PI, phi: 2.1, type: "single"} 
+      ], 
+      lonePairs: [
+          {theta: Math.PI/2, phi: 1.0}, 
+          {theta: 3*Math.PI/2, phi: 1.0} 
+      ], 
+      physics: { lp_lp: 1.6, lp_bp: 1.208, bp_bp: 1.0 } 
+  },
   co2: { bonds: [{theta: 0, phi: Math.PI/2, type: "double"}, {theta: Math.PI, phi: Math.PI/2, type: "double"}], lonePairs: [] },
   so2: { bonds: [{theta: radians(60), phi: Math.PI/2, type: "double"}, {theta: radians(180), phi: Math.PI/2, type: "single"}], lonePairs: [{theta: radians(300), phi: Math.PI/2}], physics: { lp_bp: 1.0, bp_bp: 1.08 } },
   becl2: { bonds: [{theta: 0, phi: Math.PI/2, type: "single"}, {theta: Math.PI, phi: Math.PI/2, type: "single"}], lonePairs: [] },
@@ -133,14 +143,56 @@ const MOLECULES_PRESET = {
   bf3: { bonds: [{theta: 0, phi: Math.PI/2, type: "single"}, {theta: (2*Math.PI)/3, phi: Math.PI/2, type: "single"}, {theta: (4*Math.PI)/3, phi: Math.PI/2, type: "single"}], lonePairs: [] },
   nh3: { bonds: [{theta: 0, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI*2/3, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI*4/3, phi: Math.acos(-1/3), type: "single"}], lonePairs: [{theta: 0, phi: 0}], physics: { lp_bp: 1.45, bp_bp: 1.38 } },
   pcl3: { bonds: [{theta: 0, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI*2/3, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI*4/3, phi: Math.acos(-1/3), type: "single"}], lonePairs: [{theta: 0, phi: 0}], physics: { lp_bp: 1.77, bp_bp: 1.0 } },
-  clf3: { bonds: [{theta: radians(0), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(180), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(90), phi: Math.PI/2, type: "single", posTag: "equatorial"}], lonePairs: [{theta: radians(210), phi: Math.PI/2}, {theta: radians(330), phi: Math.PI/2}], customPhysics: { lp_lp: 1.1, lp_bp_axial: 1.13, lp_bp_equatorial: 3, bp_bp: 1.43 } },
-  brf3: { bonds: [{theta: radians(0), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(180), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(90), phi: Math.PI/2, type: "single", posTag: "equatorial"}], lonePairs: [{theta: radians(210), phi: Math.PI/2}, {theta: radians(330), phi: Math.PI/2}], customPhysics: { lp_lp: 1.1, lp_bp_axial: 1.13, lp_bp_equatorial: 2.0, bp_bp: 1.22 } },
+  
+  // ClF3 - Dạng chữ T
+  clf3: { 
+      bonds: [
+          {theta: 0, phi: 0, type: "single", posTag: "axial"},          
+          {theta: 0, phi: Math.PI, type: "single", posTag: "axial"},    
+          {theta: 0, phi: Math.PI/2, type: "single", posTag: "equatorial"} 
+      ], 
+      lonePairs: [
+          {theta: 2*Math.PI/3, phi: Math.PI/2},  
+          {theta: 4*Math.PI/3, phi: Math.PI/2}   
+      ], 
+      customPhysics: { lp_lp: 1.1, lp_bp_axial: 1.13, lp_bp_equatorial: 3, bp_bp: 1.43 } 
+  },
+  
+  // BrF3 - Dạng chữ T
+  brf3: { 
+      bonds: [
+          {theta: 0, phi: 0, type: "single", posTag: "axial"},          
+          {theta: 0, phi: Math.PI, type: "single", posTag: "axial"},    
+          {theta: 0, phi: Math.PI/2, type: "single", posTag: "equatorial"} 
+      ], 
+      lonePairs: [
+          {theta: 2*Math.PI/3, phi: Math.PI/2}, 
+          {theta: 4*Math.PI/3, phi: Math.PI/2}
+      ], 
+      customPhysics: { lp_lp: 1.1, lp_bp_axial: 1.13, lp_bp_equatorial: 2.0, bp_bp: 1.22 } 
+  },
+  
   ch4: { bonds: [{theta: 0, phi: 0, type: "single"}, {theta: Math.PI/2, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI, phi: Math.acos(-1/3), type: "single"}, {theta: 3*Math.PI/2, phi: Math.acos(-1/3), type: "single"}], lonePairs: [] },
   sf4: { bonds: [{theta: radians(0), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(180), phi: Math.PI/2, type: "single", posTag: "axial"}, {theta: radians(120), phi: Math.PI/2, type: "single", posTag: "equatorial"}, {theta: radians(240), phi: Math.PI/2, type: "single", posTag: "equatorial"}], lonePairs: [{theta: 0, phi: 0.4}], customPhysics: { lp_bp_axial: 2.075, lp_bp_equatorial: 1.4, bp_bp: 1.0 } },
   pcl5: { bonds: [{theta: 0, phi: Math.PI/2, type: "single"}, {theta: 2*Math.PI/3, phi: Math.PI/2, type: "single"}, {theta: 4*Math.PI/3, phi: Math.PI/2, type: "single"}, {theta: 0, phi: 0, type: "single"}, {theta: 0, phi: Math.PI, type: "single"}], lonePairs: [] },
   brf5: { bonds: [{theta: 0, phi: Math.PI/2, type: "single"}, {theta: Math.PI, phi: Math.PI/2, type: "single"}, {theta: Math.PI, phi: Math.PI/2, type: "single"}, {theta: 3*Math.PI/2, phi: Math.PI/2, type: "single"}, {theta: 0, phi: 0, type: "single"}], lonePairs: [{theta: 0, phi: Math.PI}], physics: { lp_bp: 1.8, bp_bp: 1.22 } },
   sf6: { bonds: [{theta: 0, phi: Math.PI/2, type: "single"}, {theta: (2*Math.PI)/3, phi: Math.PI/2, type: "single"}, {theta: (4*Math.PI)/3, phi: Math.PI/2, type: "single"}, {theta: 0, phi: 0, type: "single"}, {theta: 0, phi: Math.PI, type: "single"}, {theta: Math.PI, phi: 0, type: "single"}], lonePairs: [] },
-  if7: { bonds: [{theta: 0, phi: Math.acos(0.7559), type: "single"}, {theta: Math.PI/3, phi: Math.acos(0.711), type: "single"}, {theta: 2*Math.PI/3, phi: Math.acos(0.711), type: "single"}, {theta: Math.PI, phi: Math.acos(0.711), type: "single"}, {theta: 4*Math.PI/3, phi: Math.acos(0.711), type: "single"}, {theta: 5*Math.PI/3, phi: Math.acos(0.711), type: "single"}, {theta: 0, phi: 0, type: "single"}], lonePairs: [], physics: { bp_bp: 3.8 } },
+  
+  // IF7 - Lưỡng tháp ngũ giác
+  if7: { 
+      bonds: [
+          {theta: 0, phi: 0, type: "single"}, 
+          {theta: 0, phi: Math.PI, type: "single"}, 
+          {theta: 0, phi: Math.PI/2, type: "single"},
+          {theta: radians(72), phi: Math.PI/2, type: "single"},
+          {theta: radians(144), phi: Math.PI/2, type: "single"},
+          {theta: radians(216), phi: Math.PI/2, type: "single"},
+          {theta: radians(288), phi: Math.PI/2, type: "single"}
+      ], 
+      lonePairs: [], 
+      physics: { bp_bp: 3.8 } 
+  },
+  
   "nh4+": { bonds: [{theta: 0, phi: 0, type: "single"}, {theta: Math.PI/2, phi: Math.acos(-1/3), type: "single"}, {theta: Math.PI, phi: Math.acos(-1/3), type: "single"}, {theta: 3*Math.PI/2, phi: Math.acos(-1/3), type: "single"}], lonePairs: [] }
 };
 
@@ -170,14 +222,12 @@ function getElementColor(sym) {
 }
 
 function getDetailParams(g) {
-  // SỬA: Cho phép scale xuống thấp hơn (0.2) để giảm lưới khi zoom xa
   let effectiveScale = Math.max(scale3D, 0.2); 
   let mult = map(effectiveScale, 0.2, 4.0, 0.4, 3.0);
   
   if (g) {
     return { sphereDetailX: 128, sphereDetailY: 128, ellipsoidDetailX: 96, ellipsoidDetailY: 96, cylinderDetail: 64, arcSteps: 140 };
   } else {
-    // Chỉ giảm nhẹ trên mobile để đảm bảo vẫn tròn trịa
     if (isMobile || windowWidth < 800) { mult *= 0.8; }
     
     let sd = Math.max(16, Math.round(32 * mult));
@@ -263,8 +313,6 @@ function setup() {
   cnv = createCanvas(cW, cH, WEBGL);
   cnv.parent('canvas-container');
   
-  // FIX QUAN TRỌNG: Sử dụng pixelDensity mặc định của thiết bị, nhưng giới hạn tối đa là 2
-  // Không ép về 1 trên mobile vì có thể làm hình ảnh bị vỡ/mờ trên màn hình Retina
   pixelDensity(Math.min(window.devicePixelRatio, 2));
 
   center = createVector(0, 0, 0);
@@ -375,15 +423,13 @@ function setup() {
   renderObjectList();
   updateRightSidebar();
   
-  // Thiết lập các thuộc tính WebGL để đảm bảo tương thích tốt nhất
   setAttributes('depth', true);
   setAttributes('alpha', true);
-  setAttributes('antialias', true); // Bật khử răng cưa
+  setAttributes('antialias', true); 
   setAttributes('perPixelLighting', true);
   
-  // FIX QUAN TRỌNG: Điều chỉnh scale ban đầu cho mobile nếu màn hình nhỏ (portrait)
   if (windowWidth < 600) {
-    scale3D = 0.85; // Thu nhỏ một chút trên mobile portrait để vừa vặn
+    scale3D = 0.85; 
   } else {
     scale3D = 1.1;
   }
@@ -412,33 +458,23 @@ function windowResized() {
 // =========================================================
 
 function touchStarted(e) {
-  // QUAN TRỌNG: Kiểm tra chính xác đối tượng được chạm
-  // Nếu đối tượng chạm KHÔNG PHẢI là Canvas (tức là nút bấm, thanh cuộn, sidebar...) 
-  // thì trả về true để trình duyệt xử lý click/scroll bình thường.
   if (e.target !== cnv.elt) return true;
 
-  // Nếu chạm vào Canvas, thực hiện logic 3D và chặn cuộn trang
   if (touches.length === 2) {
-    // Zoom 2 ngón
     prevTouchDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
   } else if (touches.length === 1) {
-    // Xoay 1 ngón
     prevMouseX = mouseX;
     prevMouseY = mouseY;
-    // Gọi hàm chọn đối tượng
-    // Vì ta chạm vào Canvas nên chắc chắn không phải Sidebar, ta ép buộc kiểm tra logic chọn
     mousePressed();
   }
   
-  return false; // Chặn hành vi mặc định (cuộn trang) CHỈ KHI chạm vào Canvas
+  return false; 
 }
 
 function touchMoved(e) {
-  // Nếu đang kéo trên Sidebar (ví dụ cuộn danh sách), cho phép cuộn
   if (e.target !== cnv.elt) return true;
   
   if (touches.length === 2) {
-    // Logic Zoom
     let currentDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
     if (prevTouchDist > 0) {
       let delta = currentDist - prevTouchDist;
@@ -446,7 +482,6 @@ function touchMoved(e) {
     }
     prevTouchDist = currentDist;
   } else if (touches.length === 1) {
-    // Logic Xoay / Di chuyển
     mouseDragged();
   }
   
@@ -454,9 +489,7 @@ function touchMoved(e) {
 }
 
 function touchEnded(e) {
-  // Cho phép sự kiện kết thúc chạm trên UI diễn ra bình thường
   if (e.target !== cnv.elt) return true;
-  
   prevTouchDist = -1;
   mouseReleased();
   return false;
@@ -493,7 +526,7 @@ function resetSystem() {
   realMolecule = null;
   draggingRef = null;
   draggingRotate = false;
-  scale3D = (windowWidth < 600) ? 0.85 : 1.1; // Reset về scale phù hợp
+  scale3D = (windowWidth < 600) ? 0.85 : 1.1; 
   rotX = 0.8;
   rotY = -0.9;
   orientationQuat = new Quaternion(1, 0, 0, 0);
@@ -520,7 +553,7 @@ function resetSystem() {
 
 function loadRealMolecule(molKey) {
   spheres = [];
-  realMolecule = { center: createVector(0,0,0), centralLabel: CENTRAL_LABELS[molKey] || "", atoms: [] };
+  realMolecule = { center: createVector(0,0,0), velocity: createVector(0,0,0), centralLabel: CENTRAL_LABELS[molKey] || "", atoms: [] };
   moleculePresetIsActive = true;
   let preset = MOLECULES_PRESET[molKey];
   if (!preset) return;
@@ -536,6 +569,7 @@ function loadRealMolecule(molKey) {
       let lbl = (bondLabels[i+1] !== undefined && bondLabels[i+1] !== null && bondLabels[i+1] !== "") ? bondLabels[i+1] : "X";
       realMolecule.atoms.push({
         pos: p5.Vector.mult(targetUnit, BOND_RADIUS),
+        velocity: createVector(0, 0, 0), // ADDED VELOCITY
         dragging: false, visualType: 'outer', bondType: bond.type,
         id: "R" + (sphereIdCounter++), label: lbl, targetUnit: targetUnit,
         posTag: bond.posTag 
@@ -548,12 +582,13 @@ function loadRealMolecule(molKey) {
       let targetUnit = sphericalToCartesian(1, lp.theta, lp.phi).normalize();
       realMolecule.atoms.push({
         pos: p5.Vector.mult(targetUnit, CORD_LENGTH),
+        velocity: createVector(0, 0, 0), // ADDED VELOCITY
         dragging: false, visualType: 'oval', id: "R" + (sphereIdCounter++),
         label: "E", targetUnit: targetUnit
       });
     }
   }
-  for (let i = 0; i < 600; i++) balancePhysicsForRealMolecule(true);
+  for (let i = 0; i < 150; i++) balancePhysicsForRealMolecule(true);
   updateAngleRepresentatives();
   renderObjectList();
   updateRightSidebar();
@@ -573,6 +608,7 @@ function addSphere() {
   if (shouldLockAddButtons()) return;
   spheres.push({
     pos: sphericalToCartesian(CORD_LENGTH, Math.random()*2*Math.PI, Math.random()*Math.PI),
+    velocity: createVector(0, 0, 0), // ADDED VELOCITY
     negative: true, dragging: false, type: 'blue', id: sphereIdCounter++,
     label: "E", source: 'user'
   });
@@ -584,6 +620,7 @@ function addBondSphere(bondType) {
   if (shouldLockAddButtons()) return;
   spheres.push({
     pos: sphericalToCartesian(BOND_RADIUS, Math.random()*2*Math.PI, Math.random()*Math.PI),
+    velocity: createVector(0, 0, 0), // ADDED VELOCITY
     negative: true, dragging: false, type: "white", bondType, id: sphereIdCounter++,
     label: "X", source: 'user'
   });
@@ -755,8 +792,13 @@ function renderScene(g, options = {}) {
   else drawCentralPoint(g, details);
 
   if (!g) {
+    // Tăng độ ổn định bằng cách chạy vật lý nhiều lần mỗi frame
     balancePhysics(); 
-    if (moleculePresetIsActive && realMolecule) balancePhysicsForRealMolecule();
+    balancePhysics(); 
+    if (moleculePresetIsActive && realMolecule) {
+       balancePhysicsForRealMolecule();
+       balancePhysicsForRealMolecule();
+    }
   }
 
   for(let i=0; i<spheres.length; i++) {
@@ -1253,6 +1295,7 @@ function mousePressed() {
     let arr = (best.which === 'user') ? spheres : realMolecule.atoms;
     if (arr && arr[best.idx]) {
       arr[best.idx].dragging = true;
+      arr[best.idx].velocity.mult(0); // Reset vận tốc khi bắt đầu kéo
       prevMouseX = mouseX; prevMouseY = mouseY;
       dragObjRadius = arr[best.idx].pos.mag();
       dragObjUnit = p5.Vector.div(arr[best.idx].pos, dragObjRadius);
@@ -1264,41 +1307,91 @@ function mousePressed() {
 
 function mouseDragged() {
   if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return;
-  if (draggingRef && dragObjUnit) {
+  
+  // 1. XỬ LÝ DI CHUYỂN ĐỐI TƯỢNG (DRAGGING OBJECT)
+  if (draggingRef) {
     let arr = (draggingRef.which === 'user') ? spheres : realMolecule.atoms;
     if (!arr || !arr[draggingRef.idx]) { draggingRef = null; return; }
-    let dx = mouseX - prevMouseX; let dy = mouseY - prevMouseY;
-    let v = dragObjUnit.copy();
-    let sensitivity = 1.6;
+    
+    // Giữ vận tốc = 0 để không bị trôi
+    arr[draggingRef.idx].velocity.mult(0);
+
+    // Tính toán vector di chuyển của chuột
+    let dx = mouseX - prevMouseX;
+    let dy = mouseY - prevMouseY;
+    
+    // Hệ số nhạy
+    let sensitivity = 0.01; 
+
+    // Lấy vector Up và Right của Camera hiện tại để chiếu hướng chuột vào không gian 3D
+    let camRight, camUp;
+
     if (useTrackball && orientationQuat) {
-      let q = orientationQuat;
-      let yAxis = createVector(...q.multVec([0,1,0])).normalize();
-      let xAxis = createVector(...q.multVec([1,0,0])).normalize();
-      v = rotateVector(v, yAxis, -dx * sensitivity * Math.PI / width);
-      v = rotateVector(v, xAxis, dy * sensitivity * Math.PI / height);
+        // Nếu dùng Quaternion (Trackball)
+        // Lấy Conjugate (đảo ngược) quaternion để tìm hệ trục toạ độ của màn hình trong thế giới vật thể
+        let qInv = orientationQuat.conjugate();
+        
+        // Trục X của màn hình (Right) khi chiếu ngược về thế giới vật thể
+        camRight = createVector(...qInv.multVec([1,0,0])).normalize(); 
+        
+        // Trục Y của màn hình (Up) khi chiếu ngược về thế giới vật thể
+        camUp = createVector(...qInv.multVec([0,1,0])).normalize();    
     } else {
-      v = rotateVector(v, createVector(0,1,0), -dx * sensitivity * Math.PI / width);
-      let X_axis = rotateVector(createVector(1,0,0), createVector(0,1,0), rotY);
-      v = rotateVector(v, X_axis, dy * sensitivity * Math.PI / height);
+        // Nếu dùng Euler angles (rotX, rotY)
+        // Tính ngược ma trận view
+        let rX = createVector(1, 0, 0);
+        let rY = createVector(0, 1, 0);
+        
+        // Xoay ngược lại: trước hết xoay ngược rotY, sau đó xoay ngược rotX
+        camRight = rotateVector(rX, createVector(0,1,0), -rotY);
+        camRight = rotateVector(camRight, createVector(1,0,0), -rotX); 
+        
+        camUp = rotateVector(rY, createVector(0,1,0), -rotY);
+        camUp = rotateVector(camUp, createVector(1,0,0), -rotX);
     }
-    arr[draggingRef.idx].pos = p5.Vector.mult(v, dragObjRadius);
-    dragObjUnit = v.copy().normalize();
-    prevMouseX = mouseX; prevMouseY = mouseY;
-  } else if (draggingRotate) {
+
+    // Tổng hợp vector di chuyển trong không gian 3D
+    // QUAN TRỌNG: camRight và camUp giờ đây là các vector đơn vị trong không gian thế giới
+    // tương ứng với hướng di chuyển chuột ngang và dọc trên màn hình.
+    let moveDir = p5.Vector.mult(camRight, dx).add(p5.Vector.mult(camUp, dy));
+    
+    // Di chuyển vị trí hiện tại
+    let currentPos = arr[draggingRef.idx].pos.copy();
+    currentPos.add(p5.Vector.mult(moveDir, dragObjRadius * sensitivity)); 
+    
+    // Ép vị trí mới nằm trên mặt cầu bán kính cũ
+    currentPos.setMag(dragObjRadius);
+    
+    arr[draggingRef.idx].pos = currentPos;
+    
+    // Cập nhật lại dragObjUnit cho lần tính toán sau
+    dragObjUnit = currentPos.copy().normalize();
+    
+    prevMouseX = mouseX; 
+    prevMouseY = mouseY;
+  } 
+  
+  // 2. XỬ LÝ XOAY KHUNG CẢNH (ROTATING SCENE)
+  else if (draggingRotate) {
     if (useTrackball) {
-      let dx = -(mouseX - prevMouseX); let dy = -(mouseY - prevMouseY);
+      let dx = -(mouseX - prevMouseX); 
+      let dy = -(mouseY - prevMouseY);
       let viewportDiag = Math.sqrt(width * width + height * height);
-      let normDx = dx / viewportDiag; let normDy = dy / viewportDiag;
+      let normDx = dx / viewportDiag; 
+      let normDy = dy / viewportDiag;
       let angle = Math.sqrt(normDx * normDx + normDy * normDy) * Math.PI * 1.2;
+      
       if (angle !== 0) {
         let axis = createVector(normDy, -normDx, 0).normalize();
         let qdrag = axisAngleQuat(axis, angle);
         orientationQuat = qdrag.mult(orientationQuat).normalize();
       }
     } else {
-      rotY -= (mouseX - prevMouseX) * 0.01; rotX -= (mouseY - prevMouseY) * 0.01;
+      rotY -= (mouseX - prevMouseX) * 0.01; 
+      rotX -= (mouseY - prevMouseY) * 0.01;
     }
-    prevMouseX = mouseX; prevMouseY = mouseY;
+    prevMouseX = mouseX; 
+    prevMouseY = mouseY;
   }
 }
 
@@ -1322,39 +1415,58 @@ function mouseWheel(event) {
 }
 
 function balancePhysics(strong = false) {
-  const kE = strong ? 12000000 : 3000000;
-  const restoreK = strong ? 7.5 : 2.5;
-  const moveStep = strong ? 0.36 : 0.12; 
+  if (spheres.length < 2) return;
+  // SỬA: Giảm kCoulomb xuống thấp để bớt "cứng" (từ 25000 -> 15000/8000)
+  const kCoulomb = strong ? 15000 : 8000;  
+  // SỬA: Giảm damping (tăng ma sát) để chuyển động êm hơn (0.92 -> 0.85)
+  const damping = 0.85; 
+  
   for (let i = 0; i < spheres.length; i++) {
     let sA = spheres[i];
-    if (!sA || sA.dragging) continue;
-    let fNetX = 0, fNetY = 0, fNetZ = 0;
+    // Đảm bảo velocity tồn tại
+    if (!sA.velocity) sA.velocity = createVector(0,0,0);
+
+    if (sA.dragging) {
+      sA.velocity.mult(0);
+      continue;
+    }
+
+    let force = createVector(0, 0, 0);
+
     for (let j = 0; j < spheres.length; j++) {
       if (i === j) continue;
       let sB = spheres[j];
-      if (!sB) continue;
-      let dx = sA.pos.x - sB.pos.x; let dy = sA.pos.y - sB.pos.y; let dz = sA.pos.z - sB.pos.z;
-      let d2 = dx*dx + dy*dy + dz*dz;
-      let d = Math.sqrt(d2); if (d < 5) d = 5; 
-      let factor = kE / (d * d * d);
-      fNetX += dx * factor; fNetY += dy * factor; fNetZ += dz * factor;
+      let delta = p5.Vector.sub(sA.pos, sB.pos);
+      let distSq = delta.magSq();
+      distSq = Math.max(distSq, 50); 
+      
+      let pushForce = delta.normalize().mult(kCoulomb / distSq);
+      force.add(pushForce);
     }
-    let currentMag = Math.sqrt(sA.pos.x*sA.pos.x + sA.pos.y*sA.pos.y + sA.pos.z*sA.pos.z);
-    let targetR = (sA.type === "white") ? BOND_RADIUS : CORD_LENGTH;
-    if(currentMag < 0.1) currentMag = 0.1;
-    let restoreFactor = (targetR - currentMag) * restoreK / currentMag;
-    fNetX += sA.pos.x * restoreFactor; fNetY += sA.pos.y * restoreFactor; fNetZ += sA.pos.z * restoreFactor;
-    sA.pos.x += fNetX * moveStep; sA.pos.y += fNetY * moveStep; sA.pos.z += fNetZ * moveStep;
-    sA.pos.setMag(targetR);
+    
+    sA.velocity.add(force);       
+    sA.velocity.mult(damping);    
+    // SỬA: Giới hạn tốc độ thấp hơn để tránh giật (100 -> 20)
+    sA.velocity.limit(20);  
+    sA.pos.add(sA.velocity);
+    
+    let targetRad = (sA.type === "white") ? BOND_RADIUS : CORD_LENGTH;
+    sA.pos.setMag(targetRad);
+
+    // Loại bỏ thành phần vận tốc hướng tâm để giữ chuyển động trên mặt cầu
+    let normal = sA.pos.copy().normalize();
+    let radialComp = p5.Vector.mult(normal, p5.Vector.dot(sA.velocity, normal));
+    sA.velocity.sub(radialComp);
   }
 }
 
 function balancePhysicsForRealMolecule(strong = false) {
   if (!realMolecule || !realMolecule.atoms.length) return;
   const atoms = realMolecule.atoms;
-  const kE = strong ? 12000000 : 3000000;
-  const restoreK = strong ? 7.5 : 2.5;
-  const moveStep = strong ? 0.36 : 0.12;
+  // SỬA: Giảm kCoulomb xuống thấp
+  const kCoulomb = strong ? 15000 : 8000;
+  // SỬA: Giảm damping
+  const damping = 0.85;
 
   let physics = realMolecule.physics || { lp_lp: 1.6, lp_bp: 1.25, bp_bp: 1.0 };
   let custom = realMolecule.customPhysics || null;
@@ -1369,39 +1481,36 @@ function balancePhysicsForRealMolecule(strong = false) {
 
   for (let i = 0; i < atoms.length; i++) {
     let sA = atoms[i];
-    if (!sA || sA.dragging) continue;
-    let fNetX = 0, fNetY = 0, fNetZ = 0;
+    if (!sA.velocity) sA.velocity = createVector(0,0,0);
+    if (sA.dragging) {
+      sA.velocity.mult(0);
+      continue;
+    }
     
+    let fNet = createVector(0,0,0);
     let isLPA = (sA.visualType === 'oval');
     let posTagA = sA.posTag; 
 
     for (let j = 0; j < atoms.length; j++) {
       if (i === j) continue;
       let sB = atoms[j];
-      if (!sB) continue;
-      let dx = sA.pos.x - sB.pos.x; let dy = sA.pos.y - sB.pos.y; let dz = sA.pos.z - sB.pos.z;
-      let d2 = dx*dx + dy*dy + dz*dz;
-      let d = Math.sqrt(d2); if (d < 5) d = 5;
-      
+      let delta = p5.Vector.sub(sA.pos, sB.pos);
+      let distSq = delta.magSq();
+      distSq = Math.max(distSq, 50);
+
+      // Xác định hệ số nhân lực đẩy VSEPR
       let isLPB = (sB.visualType === 'oval');
       let posTagB = sB.posTag;
-
       let mult = 1.0;
       
       if (custom) {
-        if (isLPA && isLPB) {
-            mult = custom.lp_lp || 1.6;
-        } else if (!isLPA && !isLPB) {
-            mult = custom.bp_bp || 1.0;
-        } else {
+        if (isLPA && isLPB) mult = custom.lp_lp || 1.6;
+        else if (!isLPA && !isLPB) mult = custom.bp_bp || 1.0;
+        else {
             let bpTag = isLPA ? posTagB : posTagA; 
-            if (bpTag === 'axial' && custom.lp_bp_axial) {
-                mult = custom.lp_bp_axial;
-            } else if (bpTag === 'equatorial' && custom.lp_bp_equatorial) {
-                mult = custom.lp_bp_equatorial;
-            } else {
-                mult = custom.lp_bp || 1.25; 
-            }
+            if (bpTag === 'axial' && custom.lp_bp_axial) mult = custom.lp_bp_axial;
+            else if (bpTag === 'equatorial' && custom.lp_bp_equatorial) mult = custom.lp_bp_equatorial;
+            else mult = custom.lp_bp || 1.25; 
         }
       } else {
         if (isLPA && isLPB) mult = physics.lp_lp || 1.6;
@@ -1409,28 +1518,30 @@ function balancePhysicsForRealMolecule(strong = false) {
         else mult = physics.bp_bp || 1.0;
       }
 
-      let factor = (kE * mult) / (d * d * d);
-      
-      let forceX = dx * factor;
-      let forceY = dy * factor;
-      let forceZ = dz * factor;
-
-      if (axialConstraintNormal && posTagA === 'axial' && isLPB) {
-         let dot = forceX * axialConstraintNormal.x + forceY * axialConstraintNormal.y + forceZ * axialConstraintNormal.z;
-         forceX -= dot * axialConstraintNormal.x;
-         forceY -= dot * axialConstraintNormal.y;
-         forceZ -= dot * axialConstraintNormal.z;
-      }
-
-      fNetX += forceX; fNetY += forceY; fNetZ += forceZ;
+      // Lực = (Hệ số K * VSEPR Multiplier) / khoảng cách bình phương
+      let pushForce = delta.normalize().mult((kCoulomb * mult) / distSq);
+      fNet.add(pushForce);
     }
-    let currentMag = sA.pos.mag();
+
+    if (axialConstraintNormal && posTagA === 'axial') {
+         let dot = fNet.dot(axialConstraintNormal);
+         // Giảm bớt lực đẩy theo hướng vuông góc với trục (để giữ vị trí trục bền vững hơn)
+         fNet.sub(p5.Vector.mult(axialConstraintNormal, dot * 0.8));
+    }
+
+    sA.velocity.add(fNet);
+    sA.velocity.mult(damping);
+    // SỬA: Giới hạn tốc độ thấp
+    sA.velocity.limit(20);
+    sA.pos.add(sA.velocity);
+
     let targetR = (sA.visualType === 'outer') ? BOND_RADIUS : CORD_LENGTH;
-    if (currentMag < 0.1) currentMag = 0.1;
-    let restoreFactor = (targetR - currentMag) * restoreK / currentMag;
-    fNetX += sA.pos.x * restoreFactor; fNetY += sA.pos.y * restoreFactor; fNetZ += sA.pos.z * restoreFactor;
-    sA.pos.x += fNetX * moveStep; sA.pos.y += fNetY * moveStep; sA.pos.z += fNetZ * moveStep;
     sA.pos.setMag(targetR);
+
+    // Loại bỏ thành phần hướng tâm
+    let normal = sA.pos.copy().normalize();
+    let radialComp = p5.Vector.mult(normal, p5.Vector.dot(sA.velocity, normal));
+    sA.velocity.sub(radialComp);
   }
 }
 
