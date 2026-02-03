@@ -170,8 +170,9 @@ function getElementColor(sym) {
 }
 
 function getDetailParams(g) {
-  let scaleFactor = constrain(scale3D, 0.5, 4.0);
-  let mult = map(scaleFactor, 0.5, 4.0, 0.8, 3.0);
+  // SỬA: Cho phép scale xuống thấp hơn (0.2) để giảm lưới khi zoom xa
+  let effectiveScale = Math.max(scale3D, 0.2); 
+  let mult = map(effectiveScale, 0.2, 4.0, 0.4, 3.0);
   
   if (g) {
     return { sphereDetailX: 128, sphereDetailY: 128, ellipsoidDetailX: 96, ellipsoidDetailY: 96, cylinderDetail: 64, arcSteps: 140 };
@@ -818,7 +819,7 @@ function renderScene(g, options = {}) {
     else if (!moleculePresetIsActive && spheres.find(s => s && s.type === "white")) centerLabel = "A";
     
     if (centerLabel) {
-      let drawPos = centerPos.copy(); drawPos.z += 50; 
+      let drawPos = centerPos.copy(); drawPos.z += 65; // ĐẨY NHÃN RA XA HƠN (ĐÃ SỬA TỪ 50 THÀNH 65)
       labelsToDraw.push({ type: 'text', text: centerLabel, pos: centerPos, isCentral: true, dist: getDistToCamera(drawPos) });
     }
 
@@ -918,8 +919,9 @@ function drawBillboardText(txt, pos, size, col, strokeCol, g, details, isCentral
   } else {
     if (g) { gfx.rotateY(-rotY); gfx.rotateX(-rotX); } else { rotateY(-rotY); rotateX(-rotX); }
   }
-
-  const zOffset = isCentral ? 50 : 45;
+  
+  // ĐÃ SỬA: Tăng khoảng cách offset của nhãn trung tâm từ 50 lên 65
+  const zOffset = isCentral ? 65 : 45;
   if (gfx.translate) gfx.translate(0, 0, zOffset); else translate(0, 0, zOffset);
   
   if (gfx.specularMaterial) gfx.specularMaterial(0); else specularMaterial(0);
@@ -1020,6 +1022,8 @@ function drawSphereFromArray(s, isReal, g, details) {
         if (gfx.specularMaterial) gfx.specularMaterial(spec); else specularMaterial(spec);
         if (gfx.shininess) gfx.shininess(isDark ? 10 : 20); else shininess(isDark ? 10 : 20);
         
+        // SỬA: Thêm noStroke() trước khi vẽ cầu để tránh hiện tượng lưới khi zoom nhỏ
+        if (gfx.noStroke) gfx.noStroke(); else noStroke();
         if (gfx.sphere) gfx.sphere(27, sx, sy); else sphere(27, sx, sy);
       }
     } else {
@@ -1036,6 +1040,9 @@ function drawSphereFromArray(s, isReal, g, details) {
         if (gfx.ambientMaterial) gfx.ambientMaterial(...CPK.default); else ambientMaterial(...CPK.default);
         if (gfx.specularMaterial) gfx.specularMaterial(30); else specularMaterial(30);
         if (gfx.shininess) gfx.shininess(20); else shininess(20);
+        
+        // SỬA: Thêm noStroke() trước khi vẽ cầu để tránh hiện tượng lưới khi zoom nhỏ
+        if (gfx.noStroke) gfx.noStroke(); else noStroke();
         if (gfx.sphere) gfx.sphere(27, sx, sy); else sphere(27, sx, sy);
       }
     }
