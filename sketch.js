@@ -3,7 +3,7 @@ let realMolecule = null;
 let draggingRef = null; 
 let draggingRotate = false, prevMouseX, prevMouseY;
 let scale3D = 1.1;
-// THÊM: Biến lưu khoảng cách chạm cho Zoom 2 ngón tay
+// Biến lưu khoảng cách chạm cho Zoom 2 ngón tay
 let prevTouchDist = -1; 
 let rotX = 0.8, rotY = -0.9;
 let center;
@@ -410,50 +410,52 @@ function windowResized() {
 // === CẬP NHẬT: XỬ LÝ CẢM ỨNG (TOUCH) CHO MOBILE/TABLET ===
 // =========================================================
 
-function touchStarted() {
-  // Nếu đang mở modal hoặc menu thì không chặn sự kiện (để có thể bấm nút)
-  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
-  
+function touchStarted(e) {
+  // QUAN TRỌNG: Kiểm tra chính xác đối tượng được chạm
+  // Nếu đối tượng chạm KHÔNG PHẢI là Canvas (tức là nút bấm, thanh cuộn, sidebar...) 
+  // thì trả về true để trình duyệt xử lý click/scroll bình thường.
+  if (e.target !== cnv.elt) return true;
+
+  // Nếu chạm vào Canvas, thực hiện logic 3D và chặn cuộn trang
   if (touches.length === 2) {
-    // Bắt đầu chạm 2 ngón -> Ghi nhận khoảng cách ban đầu để tính zoom
+    // Zoom 2 ngón
     prevTouchDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
   } else if (touches.length === 1) {
-    // Chạm 1 ngón -> Cập nhật vị trí để tránh bị giật hình khi bắt đầu kéo
+    // Xoay 1 ngón
     prevMouseX = mouseX;
     prevMouseY = mouseY;
-    // Gọi hàm mousePressed để kiểm tra xem có chạm trúng nguyên tử nào không
+    // Gọi hàm chọn đối tượng
+    // Vì ta chạm vào Canvas nên chắc chắn không phải Sidebar, ta ép buộc kiểm tra logic chọn
     mousePressed();
   }
   
-  // Quan trọng: Trả về false để ngăn trình duyệt cuộn trang/zoom trang mặc định
-  return false; 
+  return false; // Chặn hành vi mặc định (cuộn trang) CHỈ KHI chạm vào Canvas
 }
 
-function touchMoved() {
-  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
+function touchMoved(e) {
+  // Nếu đang kéo trên Sidebar (ví dụ cuộn danh sách), cho phép cuộn
+  if (e.target !== cnv.elt) return true;
   
   if (touches.length === 2) {
-    // --- XỬ LÝ ZOOM (2 NGÓN) ---
+    // Logic Zoom
     let currentDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
     if (prevTouchDist > 0) {
       let delta = currentDist - prevTouchDist;
-      // Điều chỉnh hệ số 0.005 để tăng/giảm tốc độ zoom
       scale3D = constrain(scale3D + delta * 0.005, 0.2, 4);
     }
     prevTouchDist = currentDist;
   } else if (touches.length === 1) {
-    // --- XỬ LÝ XOAY / DI CHUYỂN (1 NGÓN) ---
-    // Tái sử dụng logic của chuột vì P5.js map touch thành mouseX/Y
+    // Logic Xoay / Di chuyển
     mouseDragged();
   }
   
   return false; 
 }
 
-function touchEnded() {
-  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
+function touchEnded(e) {
+  // Cho phép sự kiện kết thúc chạm trên UI diễn ra bình thường
+  if (e.target !== cnv.elt) return true;
   
-  // Reset trạng thái
   prevTouchDist = -1;
   mouseReleased();
   return false;
