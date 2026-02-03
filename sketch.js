@@ -3,6 +3,8 @@ let realMolecule = null;
 let draggingRef = null; 
 let draggingRotate = false, prevMouseX, prevMouseY;
 let scale3D = 1.1;
+// THÊM: Biến lưu khoảng cách chạm cho Zoom 2 ngón tay
+let prevTouchDist = -1; 
 let rotX = 0.8, rotY = -0.9;
 let center;
 const CORD_LENGTH = 70;
@@ -404,11 +406,60 @@ function windowResized() {
   resizeCanvas(cW, cH);
 }
 
-function touchMoved() {
-  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
-  // FIX QUAN TRỌNG: Return false để P5.js bắt sự kiện touch nhưng không cuộn trang
+// =========================================================
+// === CẬP NHẬT: XỬ LÝ CẢM ỨNG (TOUCH) CHO MOBILE/TABLET ===
+// =========================================================
+
+function touchStarted() {
+  // Nếu đang mở modal hoặc menu thì không chặn sự kiện (để có thể bấm nút)
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
+  
+  if (touches.length === 2) {
+    // Bắt đầu chạm 2 ngón -> Ghi nhận khoảng cách ban đầu để tính zoom
+    prevTouchDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+  } else if (touches.length === 1) {
+    // Chạm 1 ngón -> Cập nhật vị trí để tránh bị giật hình khi bắt đầu kéo
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+    // Gọi hàm mousePressed để kiểm tra xem có chạm trúng nguyên tử nào không
+    mousePressed();
+  }
+  
+  // Quan trọng: Trả về false để ngăn trình duyệt cuộn trang/zoom trang mặc định
   return false; 
 }
+
+function touchMoved() {
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
+  
+  if (touches.length === 2) {
+    // --- XỬ LÝ ZOOM (2 NGÓN) ---
+    let currentDist = dist(touches[0].x, touches[0].y, touches[1].x, touches[1].y);
+    if (prevTouchDist > 0) {
+      let delta = currentDist - prevTouchDist;
+      // Điều chỉnh hệ số 0.005 để tăng/giảm tốc độ zoom
+      scale3D = constrain(scale3D + delta * 0.005, 0.2, 4);
+    }
+    prevTouchDist = currentDist;
+  } else if (touches.length === 1) {
+    // --- XỬ LÝ XOAY / DI CHUYỂN (1 NGÓN) ---
+    // Tái sử dụng logic của chuột vì P5.js map touch thành mouseX/Y
+    mouseDragged();
+  }
+  
+  return false; 
+}
+
+function touchEnded() {
+  if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
+  
+  // Reset trạng thái
+  prevTouchDist = -1;
+  mouseReleased();
+  return false;
+}
+
+// =========================================================
 
 function shouldLockAddButtons() {
   const moleculeSelect = document.getElementById('moleculeSelect');
