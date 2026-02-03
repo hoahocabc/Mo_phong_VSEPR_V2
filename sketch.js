@@ -19,29 +19,16 @@ const RED_RADIUS = 36;
 let orientationQuat = new Quaternion(1, 0, 0, 0); 
 let cnv; 
 let renderScaleMultiplier = 1;
-let isMobile = false; // Biến kiểm tra mobile
-let prefersReducedMotion = false;
-let resizeTimer = null;
-let viewportResizeTimer = null;
+let isMobile = false;
 
 let isModalOpen = false;
 
 // --- CẤU HÌNH MÀU SẮC CHUẨN ---
 const CPK = {
-  H: [235, 235, 235],
-  C: [70, 70, 70],
-  N: [50, 80, 255],
-  O: [255, 30, 30],
-  F: [155, 235, 90],  
-  Cl: [50, 255, 50],
-  Br: [180, 50, 50], 
-  I: [160, 0, 160],
-  P: [255, 140, 0],
-  S: [255, 240, 60],
-  B: [255, 185, 185], 
-  Be: [210, 255, 50],
-  Xe: [160, 220, 255], 
-  default: [225, 225, 225]
+  H: [235, 235, 235], C: [70, 70, 70], N: [50, 80, 255], O: [255, 30, 30],
+  F: [155, 235, 90], Cl: [50, 255, 50], Br: [180, 50, 50], I: [160, 0, 160],
+  P: [255, 140, 0], S: [255, 240, 60], B: [255, 185, 185], Be: [210, 255, 50],
+  Xe: [160, 220, 255], default: [225, 225, 225]
 };
 
 const UI_COLORS = {
@@ -54,22 +41,12 @@ const UI_COLORS = {
 };
 
 const ELEMENT_LABELS = {
-  h2o: ["O", "H", "H"],
-  co2: ["C", "O", "O"],
-  so2: ["S", "O", "O"],
-  becl2: ["Be", "Cl", "Cl"],
-  xef2: ["Xe", "F", "F"],
-  bf3: ["B", "F", "F", "F"],
-  nh3: ["N", "H", "H", "H"],
-  pcl3: ["P", "Cl", "Cl", "Cl"],
-  clf3: ["Cl", "F", "F", "F"],
-  brf3: ["Br", "F", "F", "F"],
-  ch4: ["C", "H", "H", "H", "H"],
-  sf4: ["S", "F", "F", "F", "F"],
-  pcl5: ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
-  brf5: ["Br", "F", "F", "F", "F", "F"],
-  sf6: ["S", "F", "F", "F", "F", "F", "F"],
-  if7: ["I", "F", "F", "F", "F", "F", "F", "F"],
+  h2o: ["O", "H", "H"], co2: ["C", "O", "O"], so2: ["S", "O", "O"],
+  becl2: ["Be", "Cl", "Cl"], xef2: ["Xe", "F", "F"], bf3: ["B", "F", "F", "F"],
+  nh3: ["N", "H", "H", "H"], pcl3: ["P", "Cl", "Cl", "Cl"], clf3: ["Cl", "F", "F", "F"],
+  brf3: ["Br", "F", "F", "F"], ch4: ["C", "H", "H", "H", "H"], sf4: ["S", "F", "F", "F", "F"],
+  pcl5: ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], brf5: ["Br", "F", "F", "F", "F", "F"],
+  sf6: ["S", "F", "F", "F", "F", "F", "F"], if7: ["I", "F", "F", "F", "F", "F", "F", "F"],
   "nh4+": ["N", "H", "H", "H", "H"]
 };
 const CENTRAL_LABELS = {
@@ -96,9 +73,9 @@ const LANG = {
     helpUsage5: "<strong>Menu Trái:</strong> Chọn phân tử thật có sẵn hoặc các tùy chọn hiển thị.",
     helpDiffTitle: "2. Sự khác biệt về Góc liên kết",
     helpDiffDesc: "Có sự khác biệt giữa <strong>\"Phân tử thật\"</strong> (dữ liệu thực nghiệm) và <strong>\"Mô phỏng VSEPR\"</strong> (khi bạn tự thêm đối tượng):",
-    helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
+    helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đm mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
     helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
-    helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" ��ể tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
+    helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
     helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
   },
   en: {
@@ -179,7 +156,9 @@ function getDetailParams(g) {
     return { sphereDetailX: 128, sphereDetailY: 128, ellipsoidDetailX: 96, ellipsoidDetailY: 96, cylinderDetail: 64, arcSteps: 140 };
   } else {
     // Tự động giảm chất lượng trên mobile hoặc màn hình nhỏ
-    if (isMobile || windowWidth < 800) { mult *= 0.65; }
+    if (isMobile || windowWidth < 800) { 
+        return { sphereDetailX: 12, sphereDetailY: 12, ellipsoidDetailX: 10, ellipsoidDetailY: 10, cylinderDetail: 8, arcSteps: 24 };
+    }
     
     let sd = Math.max(12, Math.round(32 * mult));
     let ed = Math.max(10, Math.round(24 * mult));
@@ -244,75 +223,28 @@ function preload() {
   try { arialFont = loadFont('Arial.ttf'); } catch (e) { arialFont = null; }
 }
 
-function renderObjectList() { return; }
-
-function detectMobile() {
-  return (
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-    window.matchMedia("(pointer: coarse)").matches ||
-    window.innerWidth < 850
-  );
-}
-
-function getViewportSize() {
-  const vp = window.visualViewport;
-  if (vp && isMobile) {
-    return { w: Math.round(vp.width), h: Math.round(vp.height) };
-  }
-  return { w: window.innerWidth, h: window.innerHeight };
-}
-
-function getCanvasSize() {
-  const vp = getViewportSize();
-  const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
-  const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
-
-  if (vp.w <= 850) { 
-    return { w: vp.w, h: vp.h };
-  }
-  return { w: vp.w - sidebarW - sidebarRightW, h: vp.h };
-}
-
-function applyRenderSettings() {
-  prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (isMobile) {
-    pixelDensity(1);
-    frameRate(30);
-  } else {
-    pixelDensity(Math.min(window.devicePixelRatio, 2));
-    frameRate(prefersReducedMotion ? 45 : 60);
-  }
-
-  setAttributes('depth', true);
-  setAttributes('alpha', true);
-  setAttributes('antialias', !isMobile);
-  setAttributes('perPixelLighting', true);
-}
-
 function setup() {
-  isMobile = detectMobile();
+  // Check if Mobile
+  isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || windowWidth < 800;
 
-  let size = getCanvasSize();
-  cnv = createCanvas(size.w, size.h, WEBGL);
+  let cW, cH;
+  // Nếu là mobile, canvas full màn hình, bỏ qua việc trừ sidebar
+  if (isMobile) { 
+    cW = windowWidth; 
+    cH = windowHeight; 
+  } else {
+    const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
+    const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
+    cW = windowWidth - sidebarW - sidebarRightW;
+    cH = windowHeight;
+  }
+
+  cnv = createCanvas(cW, cH, WEBGL);
   cnv.parent('canvas-container');
-  cnv.elt.style.position = 'absolute';
-  cnv.elt.style.top = '0';
-  cnv.elt.style.left = '0';
-  cnv.elt.style.width = '100%';
-  cnv.elt.style.height = '100%';
-  cnv.elt.style.display = 'block';
-  cnv.elt.style.touchAction = 'none';
-
-  // Touch handling để tránh scroll giật trên mobile
-  cnv.elt.addEventListener('touchstart', (e) => {
-    if (!isModalOpen && !pointerOnSidebar && !pointerOnSidebarRight) e.preventDefault();
-  }, { passive: false });
-  cnv.elt.addEventListener('touchmove', (e) => {
-    if (!isModalOpen && !pointerOnSidebar && !pointerOnSidebarRight) e.preventDefault();
-  }, { passive: false });
-
-  applyRenderSettings();
+  
+  // Tối ưu Pixel Density: Mobile dùng 1 để đỡ lag, Desktop cao có thể dùng 2
+  if (isMobile) { pixelDensity(1); } 
+  else { pixelDensity(Math.min(window.devicePixelRatio, 2)); }
 
   center = createVector(0, 0, 0);
 
@@ -368,18 +300,28 @@ function setup() {
   const sidebar = document.getElementById('sidebar');
   const sidebarRight = document.getElementById('sidebar-right');
 
-  const setSidebarPointer = (val) => { pointerOnSidebar = val; };
-  const setSidebarRightPointer = (val) => { pointerOnSidebarRight = val; };
+  // Logic kiểm tra con trỏ trên Sidebar
+  // Trên mobile, nếu sidebar không open (class 'open') thì coi như con trỏ KHÔNG nằm trên sidebar
+  const setSidebarPointer = (val, side) => { 
+      let elem = (side === 'left') ? sidebar : sidebarRight;
+      if (isMobile && !elem.classList.contains('open')) {
+          if(side === 'left') pointerOnSidebar = false;
+          else pointerOnSidebarRight = false;
+          return;
+      }
+      if(side === 'left') pointerOnSidebar = val;
+      else pointerOnSidebarRight = val;
+  };
 
-  sidebar.addEventListener('mouseenter', () => setSidebarPointer(true));
-  sidebar.addEventListener('mouseleave', () => setSidebarPointer(false));
-  sidebar.addEventListener('touchstart', () => setSidebarPointer(true), {passive: true});
-  sidebar.addEventListener('touchend', () => setSidebarPointer(false));
+  sidebar.addEventListener('mouseenter', () => setSidebarPointer(true, 'left'));
+  sidebar.addEventListener('mouseleave', () => setSidebarPointer(false, 'left'));
+  sidebar.addEventListener('touchstart', () => setSidebarPointer(true, 'left'), {passive: true});
+  sidebar.addEventListener('touchend', () => setSidebarPointer(false, 'left'));
 
-  sidebarRight.addEventListener('mouseenter', () => setSidebarRightPointer(true));
-  sidebarRight.addEventListener('mouseleave', () => setSidebarRightPointer(false));
-  sidebarRight.addEventListener('touchstart', () => setSidebarRightPointer(true), {passive: true});
-  sidebarRight.addEventListener('touchend', () => setSidebarRightPointer(false));
+  sidebarRight.addEventListener('mouseenter', () => setSidebarPointer(true, 'right'));
+  sidebarRight.addEventListener('mouseleave', () => setSidebarPointer(false, 'right'));
+  sidebarRight.addEventListener('touchstart', () => setSidebarPointer(true, 'right'), {passive: true});
+  sidebarRight.addEventListener('touchend', () => setSidebarPointer(false, 'right'));
 
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const mobileListBtn = document.getElementById('mobile-list-btn');
@@ -398,7 +340,8 @@ function setup() {
     mobileMenuBtn.onclick = () => {
       sidebar.classList.toggle('open');
       sidebarRight.classList.remove('open');
-      if (sidebar.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebar = true; } else { overlay.classList.remove('active'); }
+      if (sidebar.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebar = true; } 
+      else { overlay.classList.remove('active'); pointerOnSidebar = false; }
     };
   }
 
@@ -406,7 +349,8 @@ function setup() {
     mobileListBtn.onclick = () => {
       sidebarRight.classList.toggle('open');
       sidebar.classList.remove('open');
-      if (sidebarRight.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebarRight = true; } else { overlay.classList.remove('active'); }
+      if (sidebarRight.classList.contains('open')) { overlay.classList.add('active'); pointerOnSidebarRight = true; } 
+      else { overlay.classList.remove('active'); pointerOnSidebarRight = false; }
     };
   }
 
@@ -420,20 +364,14 @@ function setup() {
     if (val) { lastMoleculeSelect = val; loadRealMolecule(val); updateAddButtonsLock(); }
   });
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) noLoop();
-    else loop();
-  });
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      if (viewportResizeTimer) clearTimeout(viewportResizeTimer);
-      viewportResizeTimer = setTimeout(() => windowResized(), 80);
-    });
-  }
-
-  renderObjectList();
+  // GỌI HÀM UPDATE SIDEBAR THAY VÌ renderObjectList (đã bị xóa)
   updateRightSidebar();
+  
+  // Tối ưu hóa WebGL attributes cho tốc độ
+  setAttributes('depth', true);
+  setAttributes('alpha', false); // Tắt alpha channel cho background đen, tăng tốc
+  setAttributes('antialias', !isMobile); // Tắt antialias trên mobile để mượt hơn
+  setAttributes('perPixelLighting', true);
   
   orientationQuat = new Quaternion(1,0,0,0);
   updateButtonLabels();
@@ -441,18 +379,45 @@ function setup() {
 }
 
 function windowResized() {
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    isMobile = detectMobile();
-    const size = getCanvasSize();
-    resizeCanvas(size.w, size.h);
-    applyRenderSettings();
-  }, 120);
+  let cW, cH;
+  if (isMobile || windowWidth <= 850) { 
+    cW = windowWidth; cH = windowHeight; 
+  } else {
+    const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
+    const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
+    cW = windowWidth - sidebarW - sidebarRightW;
+    cH = windowHeight;
+  }
+  resizeCanvas(cW, cH);
 }
 
+// --- XỬ LÝ SỰ KIỆN CHẠM (TOUCH) ---
 function touchMoved() {
   if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) { return true; } 
+  // Trả về false để prevent default scroll của browser khi đang thao tác trên canvas
   return false; 
+}
+
+function touchStarted() {
+    // Nếu chạm vào UI, cho phép hành vi mặc định
+    if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
+
+    // Cập nhật tọa độ chuột giả lập từ điểm chạm đầu tiên
+    if (touches.length > 0) {
+        mouseX = touches[0].x;
+        mouseY = touches[0].y;
+    }
+    // Gọi hàm xử lý click chuột
+    mousePressed();
+    
+    // Ngăn chặn hành vi mặc định (zoom, scroll) khi chạm vào canvas
+    return false;
+}
+
+function touchEnded() {
+    if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return true;
+    mouseReleased();
+    return false;
 }
 
 function shouldLockAddButtons() {
@@ -494,7 +459,7 @@ function resetSystem() {
   showLabels = false;
   moleculePresetIsActive = false;
   autoRotate = false;
-  renderObjectList();
+  // renderObjectList(); // Xóa lời gọi hàm không tồn tại
   updateRightSidebar();
   setAXnEmFormula();
   let molSelect = document.getElementById('moleculeSelect');
@@ -502,7 +467,7 @@ function resetSystem() {
   lastMoleculeSelect = "";
   updateAddButtonsLock();
   updateButtonLabels();
-  if (window.innerWidth <= 850) {
+  if (windowWidth <= 850) {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-right').classList.remove('open');
     document.getElementById('mobile-overlay').classList.remove('active');
@@ -546,7 +511,7 @@ function loadRealMolecule(molKey) {
   }
   for (let i = 0; i < 600; i++) balancePhysicsForRealMolecule(true);
   updateAngleRepresentatives();
-  renderObjectList();
+  // renderObjectList(); // Xóa
   updateRightSidebar();
   setAXnEmFormula();
   updateAddButtonsLock();
@@ -585,7 +550,7 @@ function addBondSphere(bondType) {
 function updateSystemState() {
   updateAngleRepresentatives();
   renderScene(); 
-  renderObjectList();
+  // renderObjectList(); // Xóa
   updateRightSidebar();
   setAXnEmFormula();
   updateAddButtonsLock();
