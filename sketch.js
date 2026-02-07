@@ -98,7 +98,7 @@ const LANG = {
     helpDiff1: "<strong>Mô phỏng VSEPR (Sidebar Phải):</strong> Hệ thống chỉ tính toán dựa trên lực đẩy tĩnh điện đơn giản giữa các đám mây electron. Các liên kết và cặp electron được coi là các điểm điện tích đẩy nhau để đạt trạng thái cân bằng hình học lý tưởng.",
     helpDiff2: "<strong>Phân tử thật (Sidebar Trái):</strong> Góc liên kết được lấy từ dữ liệu thực nghiệm. Trong thực tế, các yếu tố như <em>độ âm điện</em>, <em>kích thước nguyên tử</em>, và <em>lai hóa orbital</em> làm cho góc liên kết lệch đi so với lý thuyết VSEPR lý tưởng (Ví dụ: Góc H-O-H trong nước là 104.5° thay vì 109.5° của tứ diện đều).",
     helpDiffNote: "<em>Hãy sử dụng chế độ \"Phân tử thật\" để tham khảo số liệu chính xác, và chế độ tự xây dựng để hiểu nguyên lý lực đẩy VSEPR.</em>",
-    helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên kết và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
+    helpSource: "<strong>Nguồn dữ liệu:</strong> Các thông số về độ dài liên k��t và góc liên kết của các \"Phân tử thật\" được tham khảo từ <em>CRC Handbook of Chemistry and Physics</em> và cơ sở dữ liệu cấu trúc hóa học chuẩn (NIST)."
   },
   en: {
     vseprTitle: "VSEPR SIMULATION", controlsLabel: "Controls", addLonePair: "Electron pair",
@@ -297,14 +297,13 @@ function renderObjectList() { return; }
 function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || windowWidth < 800;
 
-  // Tính toán kích thước canvas chuẩn
   let cW, cH;
   const sidebarW = document.getElementById('sidebar').offsetWidth || 0;
   const sidebarRightW = document.getElementById('sidebar-right').offsetWidth || 0;
 
   if (windowWidth <= 850) { 
     cW = windowWidth; 
-    cH = windowHeight; // Sử dụng windowHeight thay vì 100dvh để tương thích tốt hơn với P5.js
+    cH = windowHeight;
   } else { 
     cW = windowWidth - sidebarW - sidebarRightW; 
     cH = windowHeight; 
@@ -453,10 +452,6 @@ function windowResized() {
   resizeCanvas(cW, cH);
 }
 
-// =========================================================
-// === CẬP NHẬT: XỬ LÝ CẢM ỨNG (TOUCH) CHO MOBILE/TABLET ===
-// =========================================================
-
 function touchStarted(e) {
   if (e.target !== cnv.elt) return true;
 
@@ -494,8 +489,6 @@ function touchEnded(e) {
   mouseReleased();
   return false;
 }
-
-// =========================================================
 
 function shouldLockAddButtons() {
   const moleculeSelect = document.getElementById('moleculeSelect');
@@ -569,7 +562,7 @@ function loadRealMolecule(molKey) {
       let lbl = (bondLabels[i+1] !== undefined && bondLabels[i+1] !== null && bondLabels[i+1] !== "") ? bondLabels[i+1] : "X";
       realMolecule.atoms.push({
         pos: p5.Vector.mult(targetUnit, BOND_RADIUS),
-        velocity: createVector(0, 0, 0), // ADDED VELOCITY
+        velocity: createVector(0, 0, 0),
         dragging: false, visualType: 'outer', bondType: bond.type,
         id: "R" + (sphereIdCounter++), label: lbl, targetUnit: targetUnit,
         posTag: bond.posTag 
@@ -582,7 +575,7 @@ function loadRealMolecule(molKey) {
       let targetUnit = sphericalToCartesian(1, lp.theta, lp.phi).normalize();
       realMolecule.atoms.push({
         pos: p5.Vector.mult(targetUnit, CORD_LENGTH),
-        velocity: createVector(0, 0, 0), // ADDED VELOCITY
+        velocity: createVector(0, 0, 0),
         dragging: false, visualType: 'oval', id: "R" + (sphereIdCounter++),
         label: "E", targetUnit: targetUnit
       });
@@ -608,7 +601,7 @@ function addSphere() {
   if (shouldLockAddButtons()) return;
   spheres.push({
     pos: sphericalToCartesian(CORD_LENGTH, Math.random()*2*Math.PI, Math.random()*Math.PI),
-    velocity: createVector(0, 0, 0), // ADDED VELOCITY
+    velocity: createVector(0, 0, 0),
     negative: true, dragging: false, type: 'blue', id: sphereIdCounter++,
     label: "E", source: 'user'
   });
@@ -620,7 +613,7 @@ function addBondSphere(bondType) {
   if (shouldLockAddButtons()) return;
   spheres.push({
     pos: sphericalToCartesian(BOND_RADIUS, Math.random()*2*Math.PI, Math.random()*Math.PI),
-    velocity: createVector(0, 0, 0), // ADDED VELOCITY
+    velocity: createVector(0, 0, 0),
     negative: true, dragging: false, type: "white", bondType, id: sphereIdCounter++,
     label: "X", source: 'user'
   });
@@ -760,7 +753,6 @@ function renderScene(g, options = {}) {
     if (gfx.background) gfx.background(0); else background(0);
   }
 
-  // FIX QUAN TRỌNG: Kiểm tra nếu gfx không hợp lệ
   if (!gfx) return;
 
   if (gfx.scale) gfx.scale(scale3D * sceneScale); else scale(scale3D * sceneScale);
@@ -787,12 +779,10 @@ function renderScene(g, options = {}) {
   if (gfx.directionalLight) gfx.directionalLight(180, 180, 180, 0.5, 0.5, -1); else directionalLight(180, 180, 180, 0.5, 0.5, -1); 
   if (gfx.pointLight) gfx.pointLight(40, 40, 40, 0, 0, 300); else pointLight(40, 40, 40, 0, 0, 300);
 
-  // 1. VẼ HÌNH HỌC 3D (QUẢ CẦU, LIÊN KẾT)
   if (moleculePresetIsActive && realMolecule) drawRealCentral(realMolecule.center, g, details);
   else drawCentralPoint(g, details);
 
   if (!g) {
-    // Tăng độ ổn định bằng cách chạy vật lý nhiều lần mỗi frame
     balancePhysics(); 
     balancePhysics(); 
     if (moleculePresetIsActive && realMolecule) {
@@ -838,7 +828,6 @@ function renderScene(g, options = {}) {
     }
   }
 
-  // 2. VẼ NHÃN VÀ GÓC (TRANSPARENCY SORTING)
   let labelsToDraw = [];
 
   if (showAngle) {
@@ -861,7 +850,7 @@ function renderScene(g, options = {}) {
     else if (!moleculePresetIsActive && spheres.find(s => s && s.type === "white")) centerLabel = "A";
     
     if (centerLabel) {
-      let drawPos = centerPos.copy(); drawPos.z += 65; // ĐẨY NHÃN RA XA HƠN (ĐÃ SỬA TỪ 50 THÀNH 65)
+      let drawPos = centerPos.copy(); drawPos.z += 65;
       labelsToDraw.push({ type: 'text', text: centerLabel, pos: centerPos, isCentral: true, dist: getDistToCamera(drawPos) });
     }
 
@@ -921,29 +910,50 @@ function getCurrentCameraParams() {
 
 function saveHighResImage() {
   try {
-    const targetBaseW = 3840; const targetBaseH = 2160;
-    const aspect = width / height;
-    let w = targetBaseW; let h = Math.round(w / aspect);
-    if (h > targetBaseH) { h = targetBaseH; w = Math.round(h * aspect); }
+    // Kích thước 4K chính xác
+    const TARGET_W = 3840;
+    const TARGET_H = 2160;
 
-    let gfx = createGraphics(w, h, WEBGL);
-    gfx.pixelDensity(1);
-    gfx.setAttributes('alpha', true); gfx.setAttributes('antialias', true);
-    gfx.setAttributes('perPixelLighting', true); gfx.setAttributes('depth', true);
+    // Tạo graphics buffer với kích thước 4K
+    let gfx = createGraphics(TARGET_W, TARGET_H, WEBGL);
+    
+    // QUAN TRỌNG: Tăng pixelDensity để tăng độ mịn (không thay đổi kích thước logic)
+    gfx.pixelDensity(2);
+    
+    gfx.setAttributes('alpha', true); 
+    gfx.setAttributes('antialias', true);
+    gfx.setAttributes('perPixelLighting', true); 
+    gfx.setAttributes('depth', true);
+    
+    if (gfx.smooth) gfx.smooth();
+    
     if (arialFont) try { gfx.textFont(arialFont); } catch(e){}
 
+    // Setup camera cho graphics buffer
     const camParams = getCurrentCameraParams();
     gfx.camera(...camParams.eye, ...camParams.center, ...camParams.up);
-    gfx.perspective(camParams.fov, w / h, camParams.near, camParams.far);
+    gfx.perspective(camParams.fov, TARGET_W / TARGET_H, camParams.near, camParams.far);
 
-    renderScene(gfx, { transparent: true, labelScale: 1, sceneScale: 1.1 });
+    // Render với tùy chọn tối ưu
+    renderScene(gfx, { 
+      transparent: true, 
+      labelScale: 1.0,  // Giữ nguyên kích thước label
+      sceneScale: 1.0   // Giữ nguyên kích thước scene
+    });
     
+    // Lưu ảnh
     const dataURL = gfx.elt.toDataURL('image/png');
     const link = document.createElement('a');
-    link.href = dataURL; link.download = 'vsepr_4k_transparent.png';
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    link.href = dataURL; 
+    link.download = 'vsepr_4k_' + Date.now() + '.png';
+    document.body.appendChild(link); 
+    link.click(); 
+    document.body.removeChild(link);
     gfx.remove();
-  } catch (e) { console.error("Lỗi khi lưu ảnh:", e); alert("Không thể lưu ảnh."); }
+  } catch (e) { 
+    console.error("Lỗi khi lưu ảnh:", e); 
+    alert("Không thể lưu ảnh. Vui lòng thử lại."); 
+  }
 }
 
 function drawAllLabels(g, details) { }
@@ -962,7 +972,6 @@ function drawBillboardText(txt, pos, size, col, strokeCol, g, details, isCentral
     if (g) { gfx.rotateY(-rotY); gfx.rotateX(-rotX); } else { rotateY(-rotY); rotateX(-rotX); }
   }
   
-  // ĐÃ SỬA: Tăng khoảng cách offset của nhãn trung tâm từ 50 lên 65
   const zOffset = isCentral ? 65 : 45;
   if (gfx.translate) gfx.translate(0, 0, zOffset); else translate(0, 0, zOffset);
   
@@ -1064,7 +1073,6 @@ function drawSphereFromArray(s, isReal, g, details) {
         if (gfx.specularMaterial) gfx.specularMaterial(spec); else specularMaterial(spec);
         if (gfx.shininess) gfx.shininess(isDark ? 10 : 20); else shininess(isDark ? 10 : 20);
         
-        // SỬA: Thêm noStroke() trước khi vẽ cầu để tránh hiện tượng lưới khi zoom nhỏ
         if (gfx.noStroke) gfx.noStroke(); else noStroke();
         if (gfx.sphere) gfx.sphere(27, sx, sy); else sphere(27, sx, sy);
       }
@@ -1083,7 +1091,6 @@ function drawSphereFromArray(s, isReal, g, details) {
         if (gfx.specularMaterial) gfx.specularMaterial(30); else specularMaterial(30);
         if (gfx.shininess) gfx.shininess(20); else shininess(20);
         
-        // SỬA: Thêm noStroke() trước khi vẽ cầu để tránh hiện tượng lưới khi zoom nhỏ
         if (gfx.noStroke) gfx.noStroke(); else noStroke();
         if (gfx.sphere) gfx.sphere(27, sx, sy); else sphere(27, sx, sy);
       }
@@ -1295,7 +1302,7 @@ function mousePressed() {
     let arr = (best.which === 'user') ? spheres : realMolecule.atoms;
     if (arr && arr[best.idx]) {
       arr[best.idx].dragging = true;
-      arr[best.idx].velocity.mult(0); // Reset vận tốc khi bắt đầu kéo
+      arr[best.idx].velocity.mult(0);
       prevMouseX = mouseX; prevMouseY = mouseY;
       dragObjRadius = arr[best.idx].pos.mag();
       dragObjUnit = p5.Vector.div(arr[best.idx].pos, dragObjRadius);
@@ -1308,41 +1315,27 @@ function mousePressed() {
 function mouseDragged() {
   if (isModalOpen || pointerOnSidebar || pointerOnSidebarRight) return;
   
-  // 1. XỬ LÝ DI CHUYỂN ĐỐI TƯỢNG (DRAGGING OBJECT)
   if (draggingRef) {
     let arr = (draggingRef.which === 'user') ? spheres : realMolecule.atoms;
     if (!arr || !arr[draggingRef.idx]) { draggingRef = null; return; }
     
-    // Giữ vận tốc = 0 để không bị trôi
     arr[draggingRef.idx].velocity.mult(0);
 
-    // Tính toán vector di chuyển của chuột
     let dx = mouseX - prevMouseX;
     let dy = mouseY - prevMouseY;
     
-    // Hệ số nhạy
     let sensitivity = 0.01; 
 
-    // Lấy vector Up và Right của Camera hiện tại để chiếu hướng chuột vào không gian 3D
     let camRight, camUp;
 
     if (useTrackball && orientationQuat) {
-        // Nếu dùng Quaternion (Trackball)
-        // Lấy Conjugate (đảo ngược) quaternion để tìm hệ trục toạ độ của màn hình trong thế giới vật thể
         let qInv = orientationQuat.conjugate();
-        
-        // Trục X của màn hình (Right) khi chiếu ngược về thế giới vật thể
         camRight = createVector(...qInv.multVec([1,0,0])).normalize(); 
-        
-        // Trục Y của màn hình (Up) khi chiếu ngược về thế giới vật thể
         camUp = createVector(...qInv.multVec([0,1,0])).normalize();    
     } else {
-        // Nếu dùng Euler angles (rotX, rotY)
-        // Tính ngược ma trận view
         let rX = createVector(1, 0, 0);
         let rY = createVector(0, 1, 0);
         
-        // Xoay ngược lại: trước hết xoay ngược rotY, sau đó xoay ngược rotX
         camRight = rotateVector(rX, createVector(0,1,0), -rotY);
         camRight = rotateVector(camRight, createVector(1,0,0), -rotX); 
         
@@ -1350,28 +1343,21 @@ function mouseDragged() {
         camUp = rotateVector(camUp, createVector(1,0,0), -rotX);
     }
 
-    // Tổng hợp vector di chuyển trong không gian 3D
-    // QUAN TRỌNG: camRight và camUp giờ đây là các vector đơn vị trong không gian thế giới
-    // tương ứng với hướng di chuyển chuột ngang và dọc trên màn hình.
     let moveDir = p5.Vector.mult(camRight, dx).add(p5.Vector.mult(camUp, dy));
     
-    // Di chuyển vị trí hiện tại
     let currentPos = arr[draggingRef.idx].pos.copy();
     currentPos.add(p5.Vector.mult(moveDir, dragObjRadius * sensitivity)); 
     
-    // Ép vị trí mới nằm trên mặt cầu bán kính cũ
     currentPos.setMag(dragObjRadius);
     
     arr[draggingRef.idx].pos = currentPos;
     
-    // Cập nhật lại dragObjUnit cho lần tính toán sau
     dragObjUnit = currentPos.copy().normalize();
     
     prevMouseX = mouseX; 
     prevMouseY = mouseY;
   } 
   
-  // 2. XỬ LÝ XOAY KHUNG CẢNH (ROTATING SCENE)
   else if (draggingRotate) {
     if (useTrackball) {
       let dx = -(mouseX - prevMouseX); 
@@ -1416,14 +1402,11 @@ function mouseWheel(event) {
 
 function balancePhysics(strong = false) {
   if (spheres.length < 2) return;
-  // SỬA: Giảm kCoulomb xuống thấp để bớt "cứng" (từ 25000 -> 15000/8000)
   const kCoulomb = strong ? 15000 : 8000;  
-  // SỬA: Giảm damping (tăng ma sát) để chuyển động êm hơn (0.92 -> 0.85)
   const damping = 0.85; 
   
   for (let i = 0; i < spheres.length; i++) {
     let sA = spheres[i];
-    // Đảm bảo velocity tồn tại
     if (!sA.velocity) sA.velocity = createVector(0,0,0);
 
     if (sA.dragging) {
@@ -1446,14 +1429,12 @@ function balancePhysics(strong = false) {
     
     sA.velocity.add(force);       
     sA.velocity.mult(damping);    
-    // SỬA: Giới hạn tốc độ thấp hơn để tránh giật (100 -> 20)
     sA.velocity.limit(20);  
     sA.pos.add(sA.velocity);
     
     let targetRad = (sA.type === "white") ? BOND_RADIUS : CORD_LENGTH;
     sA.pos.setMag(targetRad);
 
-    // Loại bỏ thành phần vận tốc hướng tâm để giữ chuyển động trên mặt cầu
     let normal = sA.pos.copy().normalize();
     let radialComp = p5.Vector.mult(normal, p5.Vector.dot(sA.velocity, normal));
     sA.velocity.sub(radialComp);
@@ -1463,9 +1444,7 @@ function balancePhysics(strong = false) {
 function balancePhysicsForRealMolecule(strong = false) {
   if (!realMolecule || !realMolecule.atoms.length) return;
   const atoms = realMolecule.atoms;
-  // SỬA: Giảm kCoulomb xuống thấp
   const kCoulomb = strong ? 15000 : 8000;
-  // SỬA: Giảm damping
   const damping = 0.85;
 
   let physics = realMolecule.physics || { lp_lp: 1.6, lp_bp: 1.25, bp_bp: 1.0 };
@@ -1498,7 +1477,6 @@ function balancePhysicsForRealMolecule(strong = false) {
       let distSq = delta.magSq();
       distSq = Math.max(distSq, 50);
 
-      // Xác định hệ số nhân lực đẩy VSEPR
       let isLPB = (sB.visualType === 'oval');
       let posTagB = sB.posTag;
       let mult = 1.0;
@@ -1518,27 +1496,23 @@ function balancePhysicsForRealMolecule(strong = false) {
         else mult = physics.bp_bp || 1.0;
       }
 
-      // Lực = (Hệ số K * VSEPR Multiplier) / khoảng cách bình phương
       let pushForce = delta.normalize().mult((kCoulomb * mult) / distSq);
       fNet.add(pushForce);
     }
 
     if (axialConstraintNormal && posTagA === 'axial') {
          let dot = fNet.dot(axialConstraintNormal);
-         // Giảm bớt lực đẩy theo hướng vuông góc với trục (để giữ vị trí trục bền vững hơn)
          fNet.sub(p5.Vector.mult(axialConstraintNormal, dot * 0.8));
     }
 
     sA.velocity.add(fNet);
     sA.velocity.mult(damping);
-    // SỬA: Giới hạn tốc độ thấp
     sA.velocity.limit(20);
     sA.pos.add(sA.velocity);
 
     let targetR = (sA.visualType === 'outer') ? BOND_RADIUS : CORD_LENGTH;
     sA.pos.setMag(targetR);
 
-    // Loại bỏ thành phần hướng tâm
     let normal = sA.pos.copy().normalize();
     let radialComp = p5.Vector.mult(normal, p5.Vector.dot(sA.velocity, normal));
     sA.velocity.sub(radialComp);
